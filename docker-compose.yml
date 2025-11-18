@@ -1,16 +1,21 @@
 services:
   db:
     image: postgres:15
-    container_name: homebasedb
-    restart: always
+    # container_name: homebasedb
+    # restart: always
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: homebasedb
     ports:
-      - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
+      - 5432:5432
+    networks:
+      - app_network
+    # volumes:
+    #   - db_data:/var/lib/postgresql/data
 
-volumes:
-  db_data:
+# volumes:
+#   db_data:
+networks:
+  app_network:
+    driver: bridge
