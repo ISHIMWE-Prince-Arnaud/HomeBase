@@ -1,4 +1,7 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateHouseholdDto } from './create-household.dto';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class UpdateHouseholdDto extends PartialType(CreateHouseholdDto) {}
+export class JoinHouseholdDto {
+  @IsString()
+  @IsNotEmpty()
+  inviteCode: string;
+}
