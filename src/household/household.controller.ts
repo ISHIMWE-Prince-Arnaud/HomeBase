@@ -38,6 +38,13 @@ export class HouseholdController {
     return this.householdService.joinHousehold(userId, dto);
   }
 
+  @Post('leave')
+  @HttpCode(200)
+  async leave(@Req() req: Request & { user: { id: number } }) {
+    const userId = req.user.id;
+    await this.householdService.leaveHousehold(userId);
+  }
+
   @Get('me')
   @HttpCode(200)
   async getMyHousehold(@Req() req: Request & { user: { id: number } }) {

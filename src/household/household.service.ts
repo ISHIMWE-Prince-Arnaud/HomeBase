@@ -89,30 +89,30 @@ export class HouseholdService {
     });
     if (!user) throw new NotFoundException('User not found.');
 
-    if (user.householdId) {
-      const exists = await this.prisma.household.findUnique({
-        where: { id: user.householdId },
-        select: { id: true },
-      });
-      if (exists) {
-        throw new BadRequestException(
-          'You already belong to a household. Leaving current household before joining is required.',
-        );
-      } else {
-        await this.prisma.user.update({
-          where: { id: userId },
-          data: { householdId: null },
-        });
-      }
-    }
-
-    const refreshed = await this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       const household = await tx.household.findUnique({
         where: { inviteCode: dto.inviteCode },
         include: { users: { select: { id: true, email: true, name: true } } },
       });
 
       if (!household) throw new NotFoundException('Invalid invite code.');
+
+      if (user.householdId) {
+        const exists = await tx.household.findUnique({
+          where: { id: user.householdId },
+          select: { id: true },
+        });
+        if (exists) {
+          throw new BadRequestException(
+            'You already belong to a household. Leaving current household before joining is required.',
+          );
+        } else {
+          await tx.user.update({
+            where: { id: userId },
+            data: { householdId: null },
+          });
+        }
+      }
 
       await tx.user.update({
         where: { id: userId },
@@ -127,7 +127,7 @@ export class HouseholdService {
       return updated;
     });
 
-    return refreshed;
+    return result;
   }
 
   /**
