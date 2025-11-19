@@ -1,26 +1,193 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateHouseholdDto } from './dto/create-household.dto';
-import { UpdateHouseholdDto } from './dto/join-household.dto';
+import { JoinHouseholdDto } from './dto/join-household.dto';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class HouseholdService {
-  create(createHouseholdDto: CreateHouseholdDto) {
-    return 'This action adds a new household';
+  constructor(private readonly prisma: PrismaService) {}
+
+  private generateInviteCode(length = 8): string {
+    // alphanumeric uppercase
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    const bytes = crypto.randomBytes(length);
+    for (let i = 0; i < length; i++) {
+      code += chars[bytes[i] % chars.length];
+    }
+    return code;
   }
 
-  findAll() {
-    return `This action returns all household`;
+  private async generateUniqueInviteCode(retries = 5): Promise<string> {
+    for (let i = 0; i < retries; i++) {
+      const candidate = this.generateInviteCode(8);
+      const exists = await this.prisma.household.findUnique({
+        where: { inviteCode: candidate },
+        select: { id: true },
+      });
+      if (!exists) return candidate;
+    }
+    // fallback to a GUID-like code (extremely unlikely collision)
+    return crypto.randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} household`;
+  /**
+   * Create a new household and set the creating user as a member (user.householdId)
+   * - If the user already has a household, throw BadRequestException (no switching).
+   */
+  async createHousehold(userId: number, dto: CreateHouseholdDto) {
+    // fetch user to verify current state
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, householdId: true },
+    });
+
+    if (!user) throw new NotFoundException('User not found.');
+
+    if (user.householdId) {
+      // You may change to ForbiddenException depending on policy
+      throw new BadRequestException(
+        'You already belong to a household. Leave it before creating a new one.',
+      );
+    }
+
+    const inviteCode = await this.generateUniqueInviteCode();
+
+    const household = await this.prisma.household.create({
+      data: {
+        name: dto.name,
+        inviteCode,
+        users: {
+          connect: { id: userId }, // creator auto-joins
+        },
+      },
+      include: {
+        users: { select: { id: true, email: true, name: true } },
+      },
+    });
+
+    return household;
   }
 
-  update(id: number, updateHouseholdDto: UpdateHouseholdDto) {
-    return `This action updates a #${id} household`;
+  /**
+   * Join a household given an inviteCode.
+   * Rules:
+   *  - If inviteCode not found -> NotFoundException
+   *  - If user already in a household -> BadRequestException (no switching)
+   */
+  async joinHousehold(userId: number, dto: JoinHouseholdDto) {
+    // Check user
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, householdId: true },
+    });
+    if (!user) throw new NotFoundException('User not found.');
+
+    if (user.householdId) {
+      throw new BadRequestException(
+        'You already belong to a household. Leaving current household before joining is required.',
+      );
+    }
+
+    const refreshed = await this.prisma.$transaction(async (tx) => {
+      const household = await tx.household.findUnique({
+        where: { inviteCode: dto.inviteCode },
+        include: { users: { select: { id: true, email: true, name: true } } },
+      });
+
+      if (!household) throw new NotFoundException('Invalid invite code.');
+
+      await tx.user.update({
+        where: { id: userId },
+        data: { householdId: household.id },
+      });
+
+      const updated = await tx.household.findUnique({
+        where: { id: household.id },
+        include: { users: { select: { id: true, email: true, name: true } } },
+      });
+
+      return updated;
+    });
+
+    return refreshed;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} household`;
+  /**
+   * Get "my" household for the given user.
+   * - If user has no household -> NotFoundException
+   * - Return household + members
+   */
+  async getMyHousehold(userId: number) {
+    // get user
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, householdId: true },
+    });
+
+    if (!user) throw new NotFoundException('User not found.');
+
+    if (!user.householdId) {
+      throw new NotFoundException('User does not belong to any household.');
+    }
+
+    const household = await this.prisma.household.findUnique({
+      where: { id: user.householdId },
+      include: {
+        users: {
+          select: {
+            id: true,
+            email: true,
+            // include other public user fields you want to expose
+          },
+        },
+      },
+    });
+
+    if (!household) {
+      // Data inconsistency: user's householdId points to missing household
+      throw new NotFoundException('Household not found.');
+    }
+
+    return household;
+  }
+
+  /**
+   * (Optional helper) enforce that the calling user belongs to a given household id (multi-tenant)
+   * throws ForbiddenException if not.
+   */
+  async ensureUserBelongsToHousehold(userId: number, householdId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { householdId: true },
+    });
+
+    if (!user) throw new NotFoundException('User not found.');
+    if (!user.householdId || user.householdId !== householdId) {
+      throw new ForbiddenException('You do not have access to this household.');
+    }
+  }
+
+  async leaveHousehold(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, householdId: true },
+    });
+
+    if (!user) throw new NotFoundException('User not found.');
+    if (!user.householdId) {
+      throw new BadRequestException('User does not belong to any household.');
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { householdId: null },
+    });
   }
 }
