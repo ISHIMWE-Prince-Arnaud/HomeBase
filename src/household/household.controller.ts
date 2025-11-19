@@ -14,7 +14,7 @@ import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import type { Request } from 'express';
 
 @UseGuards(JwtGuard)
-@Controller('household')
+@Controller('households')
 export class HouseholdController {
   constructor(private readonly householdService: HouseholdService) {}
 
