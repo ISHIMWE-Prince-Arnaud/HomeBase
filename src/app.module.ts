@@ -5,9 +5,10 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { HouseholdModule } from './household/household.module';
+import { ChoreModule } from './chore/chore.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, AuthModule, HouseholdModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, AuthModule, HouseholdModule, ChoreModule],
   controllers: [AppController],
   providers: [AppService],
 })
