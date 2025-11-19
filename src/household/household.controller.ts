@@ -1,45 +1,45 @@
 import {
+  Body,
   Controller,
   Get,
+  HttpCode,
   Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { HouseholdService } from './household.service';
 import { CreateHouseholdDto } from './dto/create-household.dto';
-import { UpdateHouseholdDto } from './dto/join-household.dto';
+import { JoinHouseholdDto } from './dto/join-household.dto';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import type { Request } from 'express';
 
+@UseGuards(JwtGuard)
 @Controller('household')
 export class HouseholdController {
   constructor(private readonly householdService: HouseholdService) {}
 
   @Post()
-  create(@Body() createHouseholdDto: CreateHouseholdDto) {
-    return this.householdService.create(createHouseholdDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.householdService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.householdService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateHouseholdDto: UpdateHouseholdDto,
+  async create(
+    @Req() req: Request & { user: { id: number } },
+    @Body() dto: CreateHouseholdDto,
   ) {
-    return this.householdService.update(+id, updateHouseholdDto);
+    const userId = req.user.id;
+    return this.householdService.createHousehold(userId, dto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.householdService.remove(+id);
+  @Post('join')
+  @HttpCode(200)
+  async join(
+    @Req() req: Request & { user: { id: number } },
+    @Body() dto: JoinHouseholdDto,
+  ) {
+    const userId = req.user.id;
+    return this.householdService.joinHousehold(userId, dto);
+  }
+
+  @Get('me')
+  async getMyHousehold(@Req() req: Request & { user: { id: number } }) {
+    const userId = req.user.id;
+    return this.householdService.getMyHousehold(userId);
   }
 }
