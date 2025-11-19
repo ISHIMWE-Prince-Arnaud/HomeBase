@@ -19,6 +19,7 @@ export class HouseholdController {
   constructor(private readonly householdService: HouseholdService) {}
 
   @Post()
+  @HttpCode(201)
   async create(
     @Req() req: Request & { user: { id: number } },
     @Body() dto: CreateHouseholdDto,
@@ -38,6 +39,7 @@ export class HouseholdController {
   }
 
   @Get('me')
+  @HttpCode(200)
   async getMyHousehold(@Req() req: Request & { user: { id: number } }) {
     const userId = req.user.id;
     return this.householdService.getMyHousehold(userId);
