@@ -1,26 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { CreateChoreDto } from './dto/create-chore.dto';
-import { UpdateChoreDto } from './dto/update-chore.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ChoreService {
-  create(createChoreDto: CreateChoreDto) {
-    return 'This action adds a new chore';
+  constructor(private prisma: PrismaService) {}
+
+  async getChoresByHousehold(householdId: number) {
+    return this.prisma.chore.findMany({ where: { householdId } });
   }
 
-  findAll() {
-    return `This action returns all chore`;
+  async createChore(householdId: number, dto: CreateChoreDto) {
+    return this.prisma.chore.create({ data: { ...dto, householdId } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} chore`;
+  async markComplete(choreId: number, householdId: number) {
+    return this.prisma.chore.updateMany({
+      where: { id: choreId, householdId },
+      data: { isComplete: true },
+    });
   }
 
-  update(id: number, updateChoreDto: UpdateChoreDto) {
-    return `This action updates a #${id} chore`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} chore`;
+  async deleteChore(choreId: number, householdId: number) {
+    return this.prisma.chore.deleteMany({
+      where: { id: choreId, householdId },
+    });
   }
 }
