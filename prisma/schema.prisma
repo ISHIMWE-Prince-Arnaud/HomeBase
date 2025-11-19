@@ -33,10 +33,11 @@ model Household {
 }
 
 model Chore {
-  id         Int       @id @default(autoincrement())
-  title      String
-  dueDate    DateTime?
-  isComplete Boolean   @default(false)
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  dueDate     DateTime?
+  isComplete  Boolean   @default(false)
 
   householdId Int
   household   Household @relation(fields: [householdId], references: [id])
