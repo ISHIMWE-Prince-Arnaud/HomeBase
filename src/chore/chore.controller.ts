@@ -1,34 +1,50 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import type { Request } from 'express';
 import { ChoreService } from './chore.service';
 import { CreateChoreDto } from './dto/create-chore.dto';
-import { UpdateChoreDto } from './dto/update-chore.dto';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
 
-@Controller('chore')
+@UseGuards(JwtGuard)
+@Controller('chores')
 export class ChoreController {
-  constructor(private readonly choreService: ChoreService) {}
-
-  @Post()
-  create(@Body() createChoreDto: CreateChoreDto) {
-    return this.choreService.create(createChoreDto);
-  }
+  constructor(private choreService: ChoreService) {}
 
   @Get()
-  findAll() {
-    return this.choreService.findAll();
+  getAll(@Req() req: Request & { user: { householdId: number } }) {
+    return this.choreService.getChoresByHousehold(req.user.householdId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.choreService.findOne(+id);
+  @Post()
+  create(
+    @Req() req: Request & { user: { householdId: number } },
+    @Body() dto: CreateChoreDto,
+  ) {
+    return this.choreService.createChore(req.user.householdId, dto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateChoreDto: UpdateChoreDto) {
-    return this.choreService.update(+id, updateChoreDto);
+  @Patch(':id/complete')
+  complete(
+    @Req() req: Request & { user: { householdId: number } },
+    @Param('id') id: string,
+  ) {
+    return this.choreService.markComplete(Number(id), req.user.householdId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.choreService.remove(+id);
+  remove(
+    @Req() req: Request & { user: { householdId: number } },
+    @Param('id') id: string,
+  ) {
+    return this.choreService.deleteChore(Number(id), req.user.householdId);
   }
 }
