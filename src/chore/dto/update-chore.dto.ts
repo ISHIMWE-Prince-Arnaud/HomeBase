@@ -1,4 +1,6 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateChoreDto } from './create-chore.dto';
+import { IsBoolean } from 'class-validator';
 
-export class UpdateChoreDto extends PartialType(CreateChoreDto) {}
+export class UpdateChoreDto {
+  @IsBoolean()
+  isComplete: boolean;
+}
