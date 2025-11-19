@@ -34,7 +34,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     // Optional: remove sensitive info like password
-    const { id, email, name } = user;
-    return { id, email, name } as Omit<User, 'password'>;
+    const { id, email, name, householdId } = user;
+    return { id, email, name, householdId } as Omit<User, 'password'>;
   }
 }
