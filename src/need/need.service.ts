@@ -4,12 +4,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { NotificationService } from 'src/notification/notification.service';
 import { CreateNeedDto } from './dto/create-need.dto';
 import { MarkPurchasedDto } from './dto/mark-purchased.dto';
 
 @Injectable()
 export class NeedService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationService,
+  ) {}
 
   async createNeed(householdId: number, userId: number, dto: CreateNeedDto) {
     if (!householdId) {
@@ -24,6 +28,16 @@ export class NeedService {
         addedById: userId,
       },
     });
+    // fire-and-forget notification
+    const actor = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true },
+    });
+    await this.notifications.create(
+      householdId,
+      `${actor?.name ?? 'A member'} added ${dto.name}`,
+      'addedNeed',
+    );
     return created;
   }
 
@@ -70,6 +84,7 @@ export class NeedService {
       });
 
       let expenseId: number | undefined;
+      let expenseDescription: string | undefined;
       if (dto?.createExpense) {
         if (!dto.amount || dto.amount <= 0)
           throw new BadRequestException(
@@ -113,14 +128,32 @@ export class NeedService {
           select: { id: true },
         });
         expenseId = created.id;
+        expenseDescription = dto.description || `Purchased: ${need.name}`;
       }
 
       const updatedNeed = await tx.householdNeed.findUnique({
         where: { id: needId },
       });
-      return { need: updatedNeed, expenseId };
+      return { need: updatedNeed, expenseId, expenseDescription };
     });
 
+    // notifications (after commit)
+    const actor = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true },
+    });
+    await this.notifications.create(
+      householdId,
+      `${actor?.name ?? 'A member'} purchased ${result.need?.name ?? 'an item'}`,
+      'purchasedNeed',
+    );
+    if (result.expenseId) {
+      await this.notifications.create(
+        householdId,
+        `${actor?.name ?? 'A member'} created expense ${result.expenseDescription} (#${result.expenseId})`,
+        'createdExpense',
+      );
+    }
     return result;
   }
 
