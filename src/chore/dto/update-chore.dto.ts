@@ -1,6 +1,15 @@
-import { IsBoolean } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, ValidateIf } from 'class-validator';
 
 export class UpdateChoreDto {
   @IsBoolean()
-  isComplete: boolean;
+  @IsOptional()
+  isComplete?: boolean;
+
+  @ValidateIf(
+    (o: UpdateChoreDto) =>
+      o.assignedToId !== null && o.assignedToId !== undefined,
+  )
+  @IsInt()
+  @IsOptional()
+  assignedToId?: number | null;
 }
