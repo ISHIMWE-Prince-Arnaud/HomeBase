@@ -186,19 +186,45 @@ export class HouseholdService {
   }
 
   async leaveHousehold(userId: number) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, householdId: true },
-    });
+    await this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({
+        where: { id: userId },
+        select: { id: true, householdId: true },
+      });
 
-    if (!user) throw new NotFoundException('User not found.');
-    if (!user.householdId) {
-      throw new BadRequestException('User does not belong to any household.');
-    }
+      if (!user) throw new NotFoundException('User not found.');
+      if (!user.householdId) {
+        throw new BadRequestException('User does not belong to any household.');
+      }
 
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { householdId: null },
+      const householdId = user.householdId;
+
+      // Remove the user from the household
+      await tx.user.update({
+        where: { id: userId },
+        data: { householdId: null },
+      });
+
+      // Check if any members remain
+      const remaining = await tx.user.count({ where: { householdId } });
+      if (remaining === 0) {
+        // Clean up dependent records before deleting the household
+        const expenseIds = await tx.expense.findMany({
+          where: { householdId },
+          select: { id: true },
+        });
+        const ids = expenseIds.map((e) => e.id);
+        if (ids.length) {
+          await tx.expenseParticipant.deleteMany({
+            where: { expenseId: { in: ids } },
+          });
+        }
+        await tx.expense.deleteMany({ where: { householdId } });
+        await tx.chore.deleteMany({ where: { householdId } });
+        await tx.householdNeed.deleteMany({ where: { householdId } });
+
+        await tx.household.delete({ where: { id: householdId } });
+      }
     });
   }
 }
