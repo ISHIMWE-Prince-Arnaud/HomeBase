@@ -3,6 +3,19 @@ generator client {
   // output   = "../generated/prisma"
 }
 
+model Notification {
+  id          Int      @id @default(autoincrement())
+  householdId Int
+  userId      Int?
+  message     String
+  type        String?
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  household Household @relation(fields: [householdId], references: [id])
+  user      User?     @relation(fields: [userId], references: [id])
+}
+
 model Payment {
   id          Int      @id @default(autoincrement())
   fromUserId  Int
@@ -37,6 +50,7 @@ model User {
   purchasedNeeds   HouseholdNeed[]      @relation("PurchasedNeeds")
   paymentsMade     Payment[]            @relation("PaymentsMade")
   paymentsReceived Payment[]            @relation("PaymentsReceived")
+  notifications    Notification[]
 }
 
 model Household {
@@ -44,11 +58,12 @@ model Household {
   name       String
   inviteCode String? @unique
 
-  users    User[]
-  chores   Chore[]
-  expenses Expense[]
-  needs    HouseholdNeed[]
-  payments Payment[]
+  users         User[]
+  chores        Chore[]
+  expenses      Expense[]
+  needs         HouseholdNeed[]
+  payments      Payment[]
+  notifications Notification[]
 }
 
 model Chore {
