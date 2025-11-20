@@ -50,7 +50,7 @@ model Expense {
   id          Int       @id @default(autoincrement())
   description String
   totalAmount Float
-  date        DateTime? @default(now())
+  date        DateTime? @default(dbgenerated("(now() + interval '1 day')"))
 
   paidById Int
   paidBy   User @relation("PaidExpenses", fields: [paidById], references: [id])
