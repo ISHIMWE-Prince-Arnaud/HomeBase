@@ -256,11 +256,30 @@ export class ExpenseService {
       if (c.amount === 0) j++;
     }
 
+    // Subtract any payments already made between the specific pairs
+    const payments = await this.prisma.payment.findMany({
+      where: { householdId },
+      select: { fromUserId: true, toUserId: true, amount: true },
+    });
+    const paidMap = new Map<string, number>();
+    for (const p of payments) {
+      const key = `${p.fromUserId}->${p.toUserId}`;
+      paidMap.set(key, (paidMap.get(key) || 0) + p.amount);
+    }
+
+    const adjusted = settlements
+      .map((s) => {
+        const already = paidMap.get(`${s.fromUserId}->${s.toUserId}`) || 0;
+        const remaining = s.amount - already;
+        return remaining > 0 ? { ...s, amount: remaining } : null;
+      })
+      .filter((x): x is (typeof settlements)[number] => x !== null);
+
     return {
       scale: SCALE,
       currencyUnitNote:
         'Amounts are integers in scaled units (e.g., cents). Divide by scale to get display units.',
-      settlements,
+      settlements: adjusted,
     };
   }
 
