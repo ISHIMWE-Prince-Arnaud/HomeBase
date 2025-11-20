@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
@@ -7,9 +11,17 @@ import { CreateExpenseDto } from './dto/create-expense.dto';
 export class ExpenseService {
   constructor(private prisma: PrismaService) {}
 
-  async createExpense(householdId: number, dto: CreateExpenseDto) {
+  async createExpense(
+    householdId: number,
+    userId: number,
+    dto: CreateExpenseDto,
+  ) {
     if (!householdId) {
       throw new BadRequestException('User is not associated with a household.');
+    }
+
+    if (userId !== dto.paidById) {
+      throw new ForbiddenException('You can only create expenses you paid for');
     }
 
     // Validate paidBy user is in the same household
