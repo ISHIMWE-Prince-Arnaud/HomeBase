@@ -9,6 +9,7 @@ import { ChoreModule } from './chore/chore.module';
 import { ExpenseModule } from './expense/expense.module';
 import { NeedModule } from './need/need.module';
 import { PaymentModule } from './payment/payment.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PaymentModule } from './payment/payment.module';
     ExpenseModule,
     NeedModule,
     PaymentModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
