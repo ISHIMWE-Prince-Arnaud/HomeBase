@@ -28,4 +28,14 @@ export class ExpenseController {
   balance(@HouseholdId() householdId: number) {
     return this.expenseService.getBalance(householdId);
   }
+
+  @Get('settlements')
+  settlements(@HouseholdId() householdId: number) {
+    return this.expenseService.getSettlements(householdId);
+  }
+
+  @Get('settlements/me')
+  mySettlements(@HouseholdId() householdId: number, @UserId() userId: number) {
+    return this.expenseService.getMySettlements(householdId, userId);
+  }
 }
