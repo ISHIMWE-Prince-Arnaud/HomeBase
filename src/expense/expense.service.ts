@@ -5,11 +5,15 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { NotificationService } from 'src/notification/notification.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 
 @Injectable()
 export class ExpenseService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationService,
+  ) {}
 
   async createExpense(
     householdId: number,
@@ -80,6 +84,16 @@ export class ExpenseService {
       data,
       include: { participants: true },
     });
+    // Notification (fire-and-forget)
+    const actor = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true },
+    });
+    await this.notifications.create(
+      householdId,
+      `${actor?.name ?? 'A member'} created expense ${dto.description}`,
+      'createdExpense',
+    );
     return created;
   }
 
