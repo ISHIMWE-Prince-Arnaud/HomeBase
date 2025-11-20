@@ -27,7 +27,14 @@ export class ChoreService {
         );
       }
     }
-    return this.prisma.chore.create({ data: { ...dto, householdId } });
+    const data: Prisma.ChoreUncheckedCreateInput = {
+      title: dto.title,
+      description: dto.description,
+      dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
+      householdId,
+      assignedToId: dto.assignedToId,
+    };
+    return this.prisma.chore.create({ data });
   }
 
   async markComplete(choreId: number, householdId: number) {
