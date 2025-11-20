@@ -7,9 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { HouseholdModule } from './household/household.module';
 import { ChoreModule } from './chore/chore.module';
 import { ExpenseModule } from './expense/expense.module';
+import { NeedModule } from './need/need.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, AuthModule, HouseholdModule, ChoreModule, ExpenseModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, AuthModule, HouseholdModule, ChoreModule, ExpenseModule, NeedModule],
   controllers: [AppController],
   providers: [AppService],
 })
