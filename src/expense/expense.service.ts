@@ -1,26 +1,126 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
-import { UpdateExpenseDto } from './dto/update-expense.dto';
 
 @Injectable()
 export class ExpenseService {
-  create(createExpenseDto: CreateExpenseDto) {
-    return 'This action adds a new expense';
+  constructor(private prisma: PrismaService) {}
+
+  async createExpense(householdId: number, dto: CreateExpenseDto) {
+    if (!householdId) {
+      throw new BadRequestException('User is not associated with a household.');
+    }
+
+    // Validate paidBy user is in the same household
+    const payer = await this.prisma.user.findUnique({
+      where: { id: dto.paidById },
+      select: { id: true, householdId: true },
+    });
+    if (!payer || payer.householdId !== householdId) {
+      throw new BadRequestException(
+        'paidById must belong to the same household.',
+      );
+    }
+
+    // Validate participants are all in the same household
+    const participantIds = dto.participants;
+    if (!participantIds || participantIds.length === 0) {
+      throw new BadRequestException('participants must be a non-empty array.');
+    }
+
+    const participants = await this.prisma.user.findMany({
+      where: { id: { in: participantIds } },
+      select: { id: true, householdId: true },
+    });
+
+    if (participants.length !== participantIds.length) {
+      throw new BadRequestException('One or more participants do not exist.');
+    }
+    const invalid = participants.find((p) => p.householdId !== householdId);
+    if (invalid) {
+      throw new BadRequestException(
+        'All participants must belong to the same household.',
+      );
+    }
+
+    const share = dto.totalAmount / participantIds.length;
+
+    const data: Prisma.ExpenseUncheckedCreateInput = {
+      description: dto.description,
+      totalAmount: dto.totalAmount,
+      date: dto.date ? new Date(dto.date) : undefined,
+      paidById: dto.paidById,
+      householdId,
+      participants: {
+        create: participantIds.map((userId) => ({
+          userId,
+          shareAmount: share,
+        })),
+      },
+    };
+
+    const created = await this.prisma.expense.create({
+      data,
+      include: { participants: true },
+    });
+    return created;
   }
 
-  findAll() {
-    return `This action returns all expense`;
+  async getExpenses(householdId: number) {
+    if (!householdId) {
+      throw new BadRequestException('householdId missing in context.');
+    }
+    return this.prisma.expense.findMany({
+      where: { householdId },
+      orderBy: { id: 'desc' },
+      include: {
+        participants: true,
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} expense`;
-  }
+  async getBalance(householdId: number) {
+    if (!householdId) {
+      throw new BadRequestException('householdId missing in context.');
+    }
 
-  update(id: number, updateExpenseDto: UpdateExpenseDto) {
-    return `This action updates a #${id} expense`;
-  }
+    const paid = await this.prisma.expense.groupBy({
+      by: ['paidById'],
+      where: { householdId },
+      _sum: { totalAmount: true },
+    });
 
-  remove(id: number) {
-    return `This action removes a #${id} expense`;
+    const expenseIds = await this.prisma.expense.findMany({
+      where: { householdId },
+      select: { id: true },
+    });
+    const ids = expenseIds.map((e) => e.id);
+
+    const owes = ids.length
+      ? await this.prisma.expenseParticipant.groupBy({
+          by: ['userId'],
+          where: { expenseId: { in: ids } },
+          _sum: { shareAmount: true },
+        })
+      : ([] as Array<{ userId: number; _sum: { shareAmount: number | null } }>);
+
+    const map = new Map<number, { paid: number; owes: number }>();
+    for (const p of paid) {
+      const cur = map.get(p.paidById) || { paid: 0, owes: 0 };
+      cur.paid += p._sum.totalAmount || 0;
+      map.set(p.paidById, cur);
+    }
+    for (const o of owes) {
+      const cur = map.get(o.userId) || { paid: 0, owes: 0 };
+      cur.owes += o._sum.shareAmount || 0;
+      map.set(o.userId, cur);
+    }
+
+    const result = Array.from(map.entries()).map(([userId, v]) => ({
+      userId,
+      net: Number((v.paid - v.owes).toFixed(2)),
+    }));
+    return result;
   }
 }
