@@ -6,13 +6,13 @@ import {
   Param,
   Patch,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
-import type { Request } from 'express';
 import { ChoreService } from './chore.service';
 import { CreateChoreDto } from './dto/create-chore.dto';
+import { UpdateChoreDto } from './dto/update-chore.dto';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { HouseholdId } from 'src/common/decorators/household-id.decorator';
 
 @UseGuards(JwtGuard)
 @Controller('chores')
@@ -20,31 +20,36 @@ export class ChoreController {
   constructor(private choreService: ChoreService) {}
 
   @Get()
-  getAll(@Req() req: Request & { user: { householdId: number } }) {
-    return this.choreService.getChoresByHousehold(req.user.householdId);
+  getAll(@HouseholdId() householdId: number) {
+    return this.choreService.getChoresByHousehold(householdId);
   }
 
   @Post()
-  create(
-    @Req() req: Request & { user: { householdId: number } },
-    @Body() dto: CreateChoreDto,
-  ) {
-    return this.choreService.createChore(req.user.householdId, dto);
+  create(@HouseholdId() householdId: number, @Body() dto: CreateChoreDto) {
+    return this.choreService.createChore(householdId, dto);
   }
 
   @Patch(':id/complete')
-  complete(
-    @Req() req: Request & { user: { householdId: number } },
-    @Param('id') id: string,
-  ) {
-    return this.choreService.markComplete(Number(id), req.user.householdId);
+  complete(@HouseholdId() householdId: number, @Param('id') id: string) {
+    return this.choreService.markComplete(Number(id), householdId);
   }
 
   @Delete(':id')
-  remove(
-    @Req() req: Request & { user: { householdId: number } },
+  remove(@HouseholdId() householdId: number, @Param('id') id: string) {
+    return this.choreService.deleteChore(Number(id), householdId);
+  }
+
+  @Get(':id')
+  getOne(@HouseholdId() householdId: number, @Param('id') id: string) {
+    return this.choreService.getChoreById(Number(id), householdId);
+  }
+
+  @Patch(':id')
+  update(
+    @HouseholdId() householdId: number,
     @Param('id') id: string,
+    @Body() dto: UpdateChoreDto,
   ) {
-    return this.choreService.deleteChore(Number(id), req.user.householdId);
+    return this.choreService.updateChore(Number(id), householdId, dto);
   }
 }
