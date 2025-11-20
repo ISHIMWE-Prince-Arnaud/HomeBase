@@ -5,11 +5,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { NotificationService } from 'src/notification/notification.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 
 @Injectable()
 export class PaymentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationService,
+  ) {}
 
   private async getDirectDebtAmount(
     householdId: number,
@@ -105,11 +109,11 @@ export class PaymentService {
     const [fromUser, toUser] = await Promise.all([
       this.prisma.user.findUnique({
         where: { id: fromUserId },
-        select: { id: true, householdId: true },
+        select: { id: true, householdId: true, name: true },
       }),
       this.prisma.user.findUnique({
         where: { id: toUserId },
-        select: { id: true, householdId: true },
+        select: { id: true, householdId: true, name: true },
       }),
     ]);
     if (!fromUser) throw new NotFoundException('Payer user not found');
@@ -141,6 +145,14 @@ export class PaymentService {
     const payment = await this.prisma.payment.create({
       data: { fromUserId, toUserId, amount, householdId },
     });
+
+    // Personal notification to receiver
+    await this.notifications.create(
+      householdId,
+      `${fromUser.name ?? 'A member'} paid you ${amount}`,
+      'paymentReceived',
+      toUserId,
+    );
 
     // Compute remaining direct debt between the pair after this payment
     const remainingDirectDebt = await this.getDirectDebtAmount(
