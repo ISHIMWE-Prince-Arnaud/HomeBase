@@ -41,9 +41,6 @@ export class ExpenseService {
       select: { id: true, householdId: true },
     });
 
-    if (participants.length !== participantIds.length) {
-      throw new BadRequestException('One or more participants do not exist.');
-    }
     const invalid = participants.find((p) => p.householdId !== householdId);
     if (invalid) {
       throw new BadRequestException(
