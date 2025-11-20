@@ -20,6 +20,8 @@ model User {
   assignedChores Chore[]              @relation("AssignedChores")
   paidExpenses   Expense[]            @relation("PaidExpenses")
   expenseShares  ExpenseParticipant[]
+  addedNeeds     HouseholdNeed[]      @relation("AddedNeeds")
+  purchasedNeeds HouseholdNeed[]      @relation("PurchasedNeeds")
 }
 
 model Household {
@@ -30,6 +32,7 @@ model Household {
   users    User[]
   chores   Chore[]
   expenses Expense[]
+  needs    HouseholdNeed[]
 }
 
 model Chore {
@@ -71,4 +74,23 @@ model ExpenseParticipant {
   user   User @relation(fields: [userId], references: [id])
 
   shareAmount Float
+}
+
+model HouseholdNeed {
+  id          Int      @id @default(autoincrement())
+  name        String
+  quantity    String?
+  category    String?
+  isPurchased Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  householdId Int
+  household   Household @relation(fields: [householdId], references: [id])
+
+  addedById Int
+  addedBy   User @relation("AddedNeeds", fields: [addedById], references: [id])
+
+  purchasedAt   DateTime?
+  purchasedById Int?
+  purchasedBy   User?     @relation("PurchasedNeeds", fields: [purchasedById], references: [id])
 }
