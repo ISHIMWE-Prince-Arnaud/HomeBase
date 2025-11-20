@@ -29,6 +29,13 @@ export class ExpenseService {
       throw new BadRequestException('participants must be a non-empty array.');
     }
 
+    // Ensure payer is among participants
+    if (!participantIds.includes(dto.paidById)) {
+      throw new BadRequestException(
+        'paidById must also be included in participants.',
+      );
+    }
+
     const participants = await this.prisma.user.findMany({
       where: { id: { in: participantIds } },
       select: { id: true, householdId: true },
