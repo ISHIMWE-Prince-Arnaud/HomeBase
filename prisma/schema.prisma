@@ -36,7 +36,7 @@ model Chore {
   id          Int       @id @default(autoincrement())
   title       String
   description String?
-  dueDate     DateTime?
+  dueDate     DateTime? @default(dbgenerated("(now() + interval '1 day')"))
   isComplete  Boolean   @default(false)
 
   householdId Int
@@ -50,7 +50,7 @@ model Expense {
   id          Int       @id @default(autoincrement())
   description String
   totalAmount Float
-  date        DateTime? @default(dbgenerated("(now() + interval '1 day')"))
+  date        DateTime? @default(now())
 
   paidById Int
   paidBy   User @relation("PaidExpenses", fields: [paidById], references: [id])
