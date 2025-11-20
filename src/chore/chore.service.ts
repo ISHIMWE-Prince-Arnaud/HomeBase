@@ -6,6 +6,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { CreateChoreDto } from './dto/create-chore.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UpdateChoreDto } from './dto/update-chore.dto';
 
 @Injectable()
 export class ChoreService {
@@ -68,11 +69,7 @@ export class ChoreService {
     return chore;
   }
 
-  async updateChore(
-    choreId: number,
-    householdId: number,
-    dto: { isComplete?: boolean; assignedToId?: number | null },
-  ) {
+  async updateChore(choreId: number, householdId: number, dto: UpdateChoreDto) {
     const existing = await this.prisma.chore.findFirst({
       where: { id: choreId, householdId },
       select: { id: true },
@@ -84,6 +81,13 @@ export class ChoreService {
     const data: Prisma.ChoreUpdateInput = {};
     if (dto.isComplete !== undefined) {
       data.isComplete = dto.isComplete;
+    }
+    if (dto.dueDate !== undefined) {
+      const date = new Date(dto.dueDate);
+      if (Number.isNaN(date.getTime()) || date.getTime() <= Date.now()) {
+        throw new BadRequestException('dueDate must be a future date-time');
+      }
+      data.dueDate = date;
     }
     if (dto.assignedToId !== undefined) {
       if (dto.assignedToId === null) {
