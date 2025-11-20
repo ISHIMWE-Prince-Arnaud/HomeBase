@@ -3,6 +3,19 @@ generator client {
   // output   = "../generated/prisma"
 }
 
+model Payment {
+  id          Int      @id @default(autoincrement())
+  fromUserId  Int
+  toUserId    Int
+  amount      Int
+  householdId Int
+  createdAt   DateTime @default(now())
+
+  fromUser  User      @relation("PaymentsMade", fields: [fromUserId], references: [id])
+  toUser    User      @relation("PaymentsReceived", fields: [toUserId], references: [id])
+  household Household @relation(fields: [householdId], references: [id])
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -17,11 +30,13 @@ model User {
   household   Household? @relation(fields: [householdId], references: [id])
 
   // Relations
-  assignedChores Chore[]              @relation("AssignedChores")
-  paidExpenses   Expense[]            @relation("PaidExpenses")
-  expenseShares  ExpenseParticipant[]
-  addedNeeds     HouseholdNeed[]      @relation("AddedNeeds")
-  purchasedNeeds HouseholdNeed[]      @relation("PurchasedNeeds")
+  assignedChores   Chore[]              @relation("AssignedChores")
+  paidExpenses     Expense[]            @relation("PaidExpenses")
+  expenseShares    ExpenseParticipant[]
+  addedNeeds       HouseholdNeed[]      @relation("AddedNeeds")
+  purchasedNeeds   HouseholdNeed[]      @relation("PurchasedNeeds")
+  paymentsMade     Payment[]            @relation("PaymentsMade")
+  paymentsReceived Payment[]            @relation("PaymentsReceived")
 }
 
 model Household {
@@ -33,6 +48,7 @@ model Household {
   chores   Chore[]
   expenses Expense[]
   needs    HouseholdNeed[]
+  payments Payment[]
 }
 
 model Chore {
