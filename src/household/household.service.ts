@@ -223,6 +223,7 @@ export class HouseholdService {
         await tx.chore.deleteMany({ where: { householdId } });
         await tx.householdNeed.deleteMany({ where: { householdId } });
         await tx.payment.deleteMany({ where: { householdId } });
+        await tx.notification.deleteMany({ where: { householdId } });
 
         await tx.household.delete({ where: { id: householdId } });
       }
