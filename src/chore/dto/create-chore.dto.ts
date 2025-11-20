@@ -19,15 +19,18 @@ export class CreateChoreDto {
 
   @IsString()
   @IsOptional()
+  @IsNotEmpty()
   description?: string;
 
   @IsDateString()
   @IsOptional()
+  @IsNotEmpty()
   @IsFutureDateString({ message: 'dueDate must be a future date-time' })
   dueDate?: string;
 
   @IsInt()
   @IsOptional()
+  @IsNotEmpty()
   assignedToId?: number;
 }
 
