@@ -1,34 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Patch, Param, UseGuards } from '@nestjs/common';
 import { NotificationService } from './notification.service';
-import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { HouseholdId } from 'src/common/decorators/household-id.decorator';
 
-@Controller('notification')
+@UseGuards(JwtGuard)
+@Controller('notifications')
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
-  @Post()
-  create(@Body() createNotificationDto: CreateNotificationDto) {
-    return this.notificationService.create(createNotificationDto);
-  }
-
   @Get()
-  findAll() {
-    return this.notificationService.findAll();
+  list(@HouseholdId() householdId: number) {
+    return this.notificationService.listByHousehold(householdId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.notificationService.findOne(+id);
+  @Patch(':id/read')
+  markRead(@HouseholdId() householdId: number, @Param('id') id: string) {
+    return this.notificationService.markRead(householdId, Number(id));
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNotificationDto: UpdateNotificationDto) {
-    return this.notificationService.update(+id, updateNotificationDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.notificationService.remove(+id);
+  @Patch('read-all')
+  markAll(@HouseholdId() householdId: number) {
+    return this.notificationService.markAllRead(householdId);
   }
 }
