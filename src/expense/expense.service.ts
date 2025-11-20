@@ -121,10 +121,26 @@ export class ExpenseService {
       map.set(o.userId, cur);
     }
 
-    const result = Array.from(map.entries()).map(([userId, v]) => ({
-      userId,
-      net: Number((v.paid - v.owes).toFixed(2)),
-    }));
+    const userIds = Array.from(map.keys());
+    if (userIds.length === 0) {
+      return [];
+    }
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, name: true, email: true },
+    });
+    const userMap = new Map(users.map((u) => [u.id, u] as const));
+
+    const result = userIds.map((id) => {
+      const v = map.get(id)!;
+      const u = userMap.get(id);
+      return {
+        userId: id,
+        name: u?.name ?? null,
+        email: u?.email ?? null,
+        net: Number((v.paid - v.owes).toFixed(2)),
+      };
+    });
     return result;
   }
 }
