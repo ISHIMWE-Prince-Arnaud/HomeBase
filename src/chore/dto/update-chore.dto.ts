@@ -1,9 +1,19 @@
-import { IsBoolean, IsInt, IsOptional, ValidateIf } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsInt,
+  IsOptional,
+  ValidateIf,
+} from 'class-validator';
 
 export class UpdateChoreDto {
   @IsBoolean()
   @IsOptional()
   isComplete?: boolean;
+
+  @IsDateString()
+  @IsOptional()
+  dueDate?: string;
 
   @ValidateIf(
     (o: UpdateChoreDto) =>
