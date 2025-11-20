@@ -18,7 +18,7 @@ export class CreateExpenseDto {
 
   @IsNumber()
   @IsNotEmpty()
-  @Min(0.01)
+  @Min(0)
   totalAmount: number;
 
   // Optional; if omitted, defaults to now() in DB
