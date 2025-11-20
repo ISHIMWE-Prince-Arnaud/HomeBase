@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateNeedDto } from './dto/create-need.dto';
+import { MarkPurchasedDto } from './dto/mark-purchased.dto';
 
 @Injectable()
 export class NeedService {
@@ -36,19 +37,91 @@ export class NeedService {
     });
   }
 
-  async markPurchased(needId: number, householdId: number, userId: number) {
-    const updated = await this.prisma.householdNeed.updateMany({
-      where: { id: needId, householdId },
-      data: {
-        isPurchased: true,
-        purchasedAt: new Date(),
-        purchasedById: userId,
-      },
+  async markPurchased(
+    needId: number,
+    householdId: number,
+    userId: number,
+    dto?: MarkPurchasedDto,
+  ) {
+    const result = await this.prisma.$transaction(async (tx) => {
+      // Ensure the acting user belongs to this household
+      const actor = await tx.user.findUnique({
+        where: { id: userId },
+        select: { id: true, householdId: true },
+      });
+      if (!actor || actor.householdId !== householdId) {
+        throw new BadRequestException('You do not belong to this household');
+      }
+      // Ensure the need exists and belongs to the household
+      const need = await tx.householdNeed.findFirst({
+        where: { id: needId, householdId },
+        select: { id: true, name: true },
+      });
+      if (!need) throw new NotFoundException('Need not found.');
+
+      // Mark as purchased
+      await tx.householdNeed.update({
+        where: { id: needId },
+        data: {
+          isPurchased: true,
+          purchasedAt: new Date(),
+          purchasedById: userId,
+        },
+      });
+
+      let expenseId: number | undefined;
+      if (dto?.createExpense) {
+        if (!dto.amount || dto.amount <= 0)
+          throw new BadRequestException(
+            'amount must be > 0 when creating expense',
+          );
+
+        const amount = dto.amount;
+
+        // Collect all household member IDs as participants
+        const members = await tx.user.findMany({
+          where: { householdId },
+          select: { id: true },
+        });
+        const participantIds = members.map((m) => m.id);
+        if (participantIds.length === 0) {
+          throw new BadRequestException(
+            'Household has no members to split expense',
+          );
+        }
+
+        // Ensure the payer (userId) is included
+        if (!participantIds.includes(userId)) participantIds.push(userId);
+
+        // Distribute integer shares: base + remainder to first R participants
+        const n = participantIds.length;
+        const base = Math.floor(amount / n);
+        const rem = amount % n;
+        const created = await tx.expense.create({
+          data: {
+            description: dto.description || `Purchased: ${need.name}`,
+            totalAmount: amount,
+            paidById: userId,
+            householdId,
+            participants: {
+              create: participantIds.map((uid, idx) => ({
+                userId: uid,
+                shareAmount: base + (idx < rem ? 1 : 0),
+              })),
+            },
+          },
+          select: { id: true },
+        });
+        expenseId = created.id;
+      }
+
+      const updatedNeed = await tx.householdNeed.findUnique({
+        where: { id: needId },
+      });
+      return { need: updatedNeed, expenseId };
     });
-    if (updated.count === 0) {
-      throw new NotFoundException('Need not found.');
-    }
-    return this.prisma.householdNeed.findUnique({ where: { id: needId } });
+
+    return result;
   }
 
   async deleteNeed(needId: number, householdId: number) {

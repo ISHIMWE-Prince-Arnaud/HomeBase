@@ -13,6 +13,7 @@ import { CreateNeedDto } from './dto/create-need.dto';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { HouseholdId } from 'src/common/decorators/household-id.decorator';
 import { UserId } from 'src/common/decorators/user-id.decorator';
+import { MarkPurchasedDto } from './dto/mark-purchased.dto';
 
 @UseGuards(JwtGuard)
 @Controller('needs')
@@ -38,8 +39,9 @@ export class NeedController {
     @HouseholdId() householdId: number,
     @UserId() userId: number,
     @Param('id') id: string,
+    @Body() dto: MarkPurchasedDto,
   ) {
-    return this.needService.markPurchased(Number(id), householdId, userId);
+    return this.needService.markPurchased(Number(id), householdId, userId, dto);
   }
 
   @Delete(':id')
