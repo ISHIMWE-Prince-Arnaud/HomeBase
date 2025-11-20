@@ -1,26 +1,49 @@
-import { Injectable } from '@nestjs/common';
-import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class NotificationService {
-  create(createNotificationDto: CreateNotificationDto) {
-    return 'This action adds a new notification';
+  constructor(private prisma: PrismaService) {}
+
+  async listByHousehold(householdId: number) {
+    if (!householdId) throw new BadRequestException('householdId missing');
+    return await this.prisma.notification.findMany({
+      where: { householdId },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
-  findAll() {
-    return `This action returns all notification`;
+  async markRead(householdId: number, id: number) {
+    const updated = await this.prisma.notification.updateMany({
+      where: { id, householdId },
+      data: { isRead: true },
+    });
+    if (updated.count === 0)
+      throw new NotFoundException('Notification not found');
+    return updated;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} notification`;
+  // Helper to create a notification (household-scoped), optionally user-targeted
+  async create(
+    householdId: number,
+    message: string,
+    type?: string,
+    userId?: number,
+  ) {
+    return await this.prisma.notification.create({
+      data: { householdId, message, type, userId },
+    });
   }
 
-  update(id: number, updateNotificationDto: UpdateNotificationDto) {
-    return `This action updates a #${id} notification`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} notification`;
+  async markAllRead(householdId: number) {
+    if (!householdId) throw new BadRequestException('householdId missing');
+    return await this.prisma.notification.updateMany({
+      where: { householdId, isRead: false },
+      data: { isRead: true },
+    });
   }
 }
