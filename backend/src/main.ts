@@ -13,6 +13,13 @@ async function bootstrap() {
     }),
   );
 
+  // Enable CORS for all origins
+  app.enableCors({
+    origin: '*', // Allows requests from any origin
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed HTTP methods
+    credentials: true, // Allow sending cookies and authorization headers
+  });
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
