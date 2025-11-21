@@ -22,9 +22,12 @@ export class AuthController {
 
   @UseGuards(JwtGuard)
   @Get('users/me')
-  getProfile(
-    @Req() req: Request & { user: { id: number } },
-  ): Promise<{ id: number; email: string; name: string }> {
+  getProfile(@Req() req: Request & { user: { id: number } }): Promise<{
+    id: number;
+    email: string;
+    name: string;
+    profileImage: string;
+  }> {
     return this.authService.getProfile(req.user.id);
   }
 }

@@ -27,11 +27,16 @@ export class AuthService {
 
     const hash = await bcrypt.hash(registerDto.password, 10);
 
+    const avatarIndex = Math.max(
+      1,
+      Math.min(100, Math.floor(Math.random() * 100) + 1),
+    );
     const newUser: User = await this.prisma.user.create({
       data: {
         email: registerDto.email,
         name: registerDto.name,
         password: hash,
+        profileImage: `https://avatar.iran.liara.run/public/${avatarIndex}`,
       },
     });
 
@@ -71,12 +76,15 @@ export class AuthService {
     };
   }
 
-  async getProfile(
-    userId: number,
-  ): Promise<{ id: number; email: string; name: string }> {
+  async getProfile(userId: number): Promise<{
+    id: number;
+    email: string;
+    name: string;
+    profileImage: string;
+  }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, name: true },
+      select: { id: true, email: true, name: true, profileImage: true },
     });
 
     if (!user) {
