@@ -10,6 +10,7 @@ import { ExpenseModule } from './expense/expense.module';
 import { NeedModule } from './need/need.module';
 import { PaymentModule } from './payment/payment.module';
 import { NotificationModule } from './notification/notification.module';
+import { RealtimeModule } from './realtime/realtime.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { NotificationModule } from './notification/notification.module';
     NeedModule,
     PaymentModule,
     NotificationModule,
+    RealtimeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
