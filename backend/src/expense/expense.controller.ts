@@ -11,6 +11,9 @@ export class ExpenseController {
   constructor(private readonly expenseService: ExpenseService) {}
 
   @Post()
+  /**
+   * WebSocket: emits 'expenses:created' and 'expenses:balanceUpdated' (reason: 'expenseCreated').
+   */
   create(
     @HouseholdId() householdId: number,
     @UserId() userId: number,

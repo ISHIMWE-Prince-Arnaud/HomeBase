@@ -25,16 +25,25 @@ export class ChoreController {
   }
 
   @Post()
+  /**
+   * WebSocket: emits 'chores:created' to household room after creation.
+   */
   create(@HouseholdId() householdId: number, @Body() dto: CreateChoreDto) {
     return this.choreService.createChore(householdId, dto);
   }
 
   @Patch(':id/complete')
+  /**
+   * WebSocket: emits 'chores:completed' to household room.
+   */
   complete(@HouseholdId() householdId: number, @Param('id') id: string) {
     return this.choreService.markComplete(Number(id), householdId);
   }
 
   @Delete(':id')
+  /**
+   * WebSocket: emits 'chores:deleted' to household room.
+   */
   remove(@HouseholdId() householdId: number, @Param('id') id: string) {
     return this.choreService.deleteChore(Number(id), householdId);
   }
@@ -45,6 +54,10 @@ export class ChoreController {
   }
 
   @Patch(':id')
+  /**
+   * WebSocket: emits 'chores:updated' to household room.
+   * May also emit 'chores:completed' (if isComplete true) and 'chores:assigned' when assignment changes.
+   */
   update(
     @HouseholdId() householdId: number,
     @Param('id') id: string,

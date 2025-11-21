@@ -14,11 +14,17 @@ export class NotificationController {
   }
 
   @Patch(':id/read')
+  /**
+   * WebSocket: emits 'notifications:read' to household room for the given id.
+   */
   markRead(@HouseholdId() householdId: number, @Param('id') id: string) {
     return this.notificationService.markRead(householdId, Number(id));
   }
 
   @Patch('read-all')
+  /**
+   * WebSocket: emits 'notifications:read' to household room with { all: true }.
+   */
   markAll(@HouseholdId() householdId: number) {
     return this.notificationService.markAllRead(householdId);
   }

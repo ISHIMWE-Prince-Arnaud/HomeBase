@@ -22,6 +22,9 @@ export class NeedController {
   constructor(private readonly needService: NeedService) {}
 
   @Post()
+  /**
+   * WebSocket: emits 'needs:itemAdded' to household room after creation.
+   */
   create(
     @HouseholdId() householdId: number,
     @UserId() userId: number,
@@ -36,6 +39,10 @@ export class NeedController {
   }
 
   @Patch(':id/purchase')
+  /**
+   * WebSocket: emits 'needs:itemPurchased' to household room.
+   * If auto-expense is created, also emits 'needs:expenseCreated'.
+   */
   purchase(
     @HouseholdId() householdId: number,
     @UserId() userId: number,
@@ -46,6 +53,9 @@ export class NeedController {
   }
 
   @Patch(':id')
+  /**
+   * WebSocket: emits 'needs:itemUpdated' to household room after update.
+   */
   update(
     @HouseholdId() householdId: number,
     @Param('id') id: string,
