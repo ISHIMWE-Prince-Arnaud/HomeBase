@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -9,6 +10,7 @@ import type { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterUserDto } from './dto/register.dto';
 import { LoginUserDto } from './dto/login.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -92,5 +94,69 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async updateProfile(
+    userId: number,
+    dto: UpdateProfileDto,
+  ): Promise<{
+    id: number;
+    email: string;
+    name: string;
+    profileImage: string;
+  }> {
+    const updates: { name?: string; password?: string } = {};
+
+    if (dto.name !== undefined) {
+      const name = dto.name.trim();
+      if (!name) {
+        throw new BadRequestException('Name cannot be empty');
+      }
+      updates.name = name;
+    }
+
+    if (dto.currentPassword !== undefined || dto.newPassword !== undefined) {
+      if (!dto.currentPassword || !dto.newPassword) {
+        throw new BadRequestException(
+          'Both currentPassword and newPassword are required to change password',
+        );
+      }
+
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { password: true },
+      });
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      const isCurrentValid = await bcrypt.compare(
+        dto.currentPassword,
+        user.password,
+      );
+      if (!isCurrentValid) {
+        throw new UnauthorizedException('Current password is incorrect');
+      }
+
+      const isSame = await bcrypt.compare(dto.newPassword, user.password);
+      if (isSame) {
+        throw new BadRequestException('New password must be different');
+      }
+
+      const hash = await bcrypt.hash(dto.newPassword, 10);
+      updates.password = hash;
+    }
+
+    if (!updates.name && !updates.password) {
+      throw new BadRequestException('No updates provided');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: updates,
+      select: { id: true, email: true, name: true, profileImage: true },
+    });
+
+    return updated;
   }
 }
