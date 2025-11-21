@@ -20,6 +20,9 @@ export class HouseholdController {
 
   @Post()
   @HttpCode(201)
+  /**
+   * WebSocket: emits 'household:memberJoined' and syncs user socket into household room.
+   */
   async create(
     @Req() req: Request & { user: { id: number } },
     @Body() dto: CreateHouseholdDto,
@@ -30,6 +33,9 @@ export class HouseholdController {
 
   @Post('join')
   @HttpCode(200)
+  /**
+   * WebSocket: emits 'household:memberJoined' and syncs user socket into household room.
+   */
   async join(
     @Req() req: Request & { user: { id: number } },
     @Body() dto: JoinHouseholdDto,
@@ -40,6 +46,10 @@ export class HouseholdController {
 
   @Post('leave')
   @HttpCode(200)
+  /**
+   * WebSocket: emits 'household:memberLeft'. If the household is deleted (last member), also emits 'household:deleted'.
+   * Room sync: user socket leaves the household room.
+   */
   async leave(@Req() req: Request & { user: { id: number } }) {
     const userId = req.user.id;
     await this.householdService.leaveHousehold(userId);

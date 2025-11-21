@@ -11,6 +11,9 @@ export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post()
+  /**
+   * WebSocket: emits 'payments:recorded' and 'expenses:balanceUpdated' (reason: 'paymentRecorded').
+   */
   create(
     @HouseholdId() householdId: number,
     @UserId() userId: number,
