@@ -5,14 +5,18 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { NotificationService } from 'src/notification/notification.service';
+import { RealtimeService } from 'src/realtime/realtime.service';
+import { RealtimeEvents } from 'src/realtime/realtime.events';
 import { CreateNeedDto } from './dto/create-need.dto';
 import { MarkPurchasedDto } from './dto/mark-purchased.dto';
+import { UpdateNeedDto } from './dto/update-need.dto';
 
 @Injectable()
 export class NeedService {
   constructor(
     private prisma: PrismaService,
     private notifications: NotificationService,
+    private realtime: RealtimeService,
   ) {}
 
   async createNeed(householdId: number, userId: number, dto: CreateNeedDto) {
@@ -38,6 +42,9 @@ export class NeedService {
       `${actor?.name ?? 'A member'} added ${dto.name}`,
       'addedNeed',
     );
+    this.realtime.emitToHousehold(householdId, RealtimeEvents.NEED_ITEM_ADDED, {
+      need: created,
+    });
     return created;
   }
 
@@ -49,6 +56,29 @@ export class NeedService {
       where: { householdId },
       orderBy: [{ isPurchased: 'asc' }, { createdAt: 'desc' }],
     });
+  }
+
+  async updateNeed(needId: number, householdId: number, dto: UpdateNeedDto) {
+    const existing = await this.prisma.householdNeed.findFirst({
+      where: { id: needId, householdId },
+    });
+    if (!existing) throw new NotFoundException('Need not found.');
+
+    const data: Record<string, unknown> = {};
+    if (dto.name !== undefined) data.name = dto.name;
+    if (dto.quantity !== undefined) data.quantity = dto.quantity;
+    if (dto.category !== undefined) data.category = dto.category;
+
+    const updated = await this.prisma.householdNeed.update({
+      where: { id: needId },
+      data,
+    });
+    this.realtime.emitToHousehold(
+      householdId,
+      RealtimeEvents.NEED_ITEM_UPDATED,
+      { need: updated },
+    );
+    return updated;
   }
 
   async markPurchased(
@@ -147,11 +177,28 @@ export class NeedService {
       `${actor?.name ?? 'A member'} purchased ${result.need?.name ?? 'an item'}`,
       'purchasedNeed',
     );
+    if (result.need) {
+      this.realtime.emitToHousehold(
+        householdId,
+        RealtimeEvents.NEED_ITEM_PURCHASED,
+        {
+          need: result.need,
+        },
+      );
+    }
     if (result.expenseId) {
       await this.notifications.create(
         householdId,
         `${actor?.name ?? 'A member'} created expense ${result.expenseDescription} (#${result.expenseId})`,
         'createdExpense',
+      );
+      this.realtime.emitToHousehold(
+        householdId,
+        RealtimeEvents.NEED_EXPENSE_CREATED,
+        {
+          expenseId: result.expenseId,
+          description: result.expenseDescription,
+        },
       );
     }
     return result;
