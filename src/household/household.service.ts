@@ -8,10 +8,15 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateHouseholdDto } from './dto/create-household.dto';
 import { JoinHouseholdDto } from './dto/join-household.dto';
 import * as crypto from 'crypto';
+import { RealtimeService } from 'src/realtime/realtime.service';
+import { RealtimeEvents } from 'src/realtime/realtime.events';
 
 @Injectable()
 export class HouseholdService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly realtime: RealtimeService,
+  ) {}
 
   private generateInviteCode(length = 8): string {
     // alphanumeric uppercase
@@ -71,7 +76,13 @@ export class HouseholdService {
         users: { select: { id: true, email: true, name: true } },
       },
     });
-
+    // notify/sync membership
+    await this.realtime.syncUserHousehold(userId, household.id, null);
+    this.realtime.emitToHousehold(
+      household.id,
+      RealtimeEvents.HOUSEHOLD_MEMBER_JOINED,
+      { userId },
+    );
     return household;
   }
 
@@ -126,7 +137,14 @@ export class HouseholdService {
 
       return updated;
     });
-
+    // sync and broadcast join
+    const prev = null; // previous handled in transaction; may have been null or dangling
+    await this.realtime.syncUserHousehold(userId, result!.id, prev);
+    this.realtime.emitToHousehold(
+      result!.id,
+      RealtimeEvents.HOUSEHOLD_MEMBER_JOINED,
+      { userId },
+    );
     return result;
   }
 
@@ -186,6 +204,8 @@ export class HouseholdService {
   }
 
   async leaveHousehold(userId: number) {
+    let deletedHouseholdId: number | null = null;
+    let householdIdForSync: number | null = null;
     await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.findUnique({
         where: { id: userId },
@@ -198,6 +218,7 @@ export class HouseholdService {
       }
 
       const householdId = user.householdId;
+      householdIdForSync = householdId;
 
       // Remove the user from the household
       await tx.user.update({
@@ -226,7 +247,24 @@ export class HouseholdService {
         await tx.notification.deleteMany({ where: { householdId } });
 
         await tx.household.delete({ where: { id: householdId } });
+        deletedHouseholdId = householdId;
       }
     });
+    // Post-commit: sync and broadcast
+    if (householdIdForSync !== null) {
+      await this.realtime.syncUserHousehold(userId, null, householdIdForSync);
+      this.realtime.emitToHousehold(
+        householdIdForSync,
+        RealtimeEvents.HOUSEHOLD_MEMBER_LEFT,
+        { userId },
+      );
+    }
+    if (deletedHouseholdId !== null) {
+      this.realtime.emitToHousehold(
+        deletedHouseholdId,
+        RealtimeEvents.HOUSEHOLD_DELETED,
+        { householdId: deletedHouseholdId },
+      );
+    }
   }
 }
