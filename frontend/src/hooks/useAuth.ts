@@ -1,0 +1,54 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { authApi } from "@/features/auth/api";
+import { useNavigate } from "react-router-dom";
+
+export const useAuth = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["me"],
+    queryFn: authApi.getProfile,
+    retry: false,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  const loginMutation = useMutation({
+    mutationFn: authApi.login,
+    onSuccess: (data) => {
+      // In a real app with cookies, the cookie is set automatically.
+      // If using localStorage for token (not recommended but common), set it here.
+      // For now, assuming HTTP-only cookies or handled by interceptor if needed.
+      queryClient.setQueryData(["me"], data.user);
+      navigate("/dashboard");
+    },
+  });
+
+  const registerMutation = useMutation({
+    mutationFn: authApi.register,
+    onSuccess: (data) => {
+      queryClient.setQueryData(["me"], data.user);
+      navigate("/dashboard");
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: authApi.logout,
+    onSuccess: () => {
+      queryClient.setQueryData(["me"], null);
+      queryClient.clear(); // Clear all cache
+      navigate("/login");
+    },
+  });
+
+  return {
+    user,
+    isLoading,
+    isAuthenticated: !!user,
+    login: loginMutation.mutate,
+    isLoggingIn: loginMutation.isPending,
+    register: registerMutation.mutate,
+    isRegistering: registerMutation.isPending,
+    logout: logoutMutation.mutate,
+  };
+};
