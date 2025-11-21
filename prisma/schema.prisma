@@ -11,6 +11,7 @@ model Notification {
   type        String?
   isRead      Boolean  @default(false)
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   household Household @relation(fields: [householdId], references: [id])
   user      User?     @relation(fields: [userId], references: [id])
@@ -23,6 +24,7 @@ model Payment {
   amount      Int
   householdId Int
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   fromUser  User      @relation("PaymentsMade", fields: [fromUserId], references: [id])
   toUser    User      @relation("PaymentsReceived", fields: [toUserId], references: [id])
@@ -41,6 +43,8 @@ model User {
   name        String
   householdId Int?
   household   Household? @relation(fields: [householdId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   // Relations
   assignedChores   Chore[]              @relation("AssignedChores")
@@ -54,9 +58,11 @@ model User {
 }
 
 model Household {
-  id         Int     @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   name       String
-  inviteCode String? @unique
+  inviteCode String?  @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   users         User[]
   chores        Chore[]
@@ -72,6 +78,8 @@ model Chore {
   description String?
   dueDate     DateTime? @default(dbgenerated("(now() + interval '1 day')"))
   isComplete  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   householdId Int
   household   Household @relation(fields: [householdId], references: [id])
@@ -85,6 +93,8 @@ model Expense {
   description String
   totalAmount Float
   date        DateTime? @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   paidById Int
   paidBy   User @relation("PaidExpenses", fields: [paidById], references: [id])
@@ -105,6 +115,8 @@ model ExpenseParticipant {
   user   User @relation(fields: [userId], references: [id])
 
   shareAmount Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model HouseholdNeed {
@@ -114,6 +126,7 @@ model HouseholdNeed {
   category    String?
   isPurchased Boolean  @default(false)
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   householdId Int
   household   Household @relation(fields: [householdId], references: [id])
