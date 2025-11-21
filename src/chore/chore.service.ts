@@ -7,10 +7,15 @@ import { Prisma } from '@prisma/client';
 import { CreateChoreDto } from './dto/create-chore.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateChoreDto } from './dto/update-chore.dto';
+import { RealtimeService } from 'src/realtime/realtime.service';
+import { RealtimeEvents } from 'src/realtime/realtime.events';
 
 @Injectable()
 export class ChoreService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private realtime: RealtimeService,
+  ) {}
 
   async getChoresByHousehold(householdId: number) {
     return this.prisma.chore.findMany({ where: { householdId } });
@@ -35,7 +40,11 @@ export class ChoreService {
       householdId,
       assignedToId: dto.assignedToId,
     };
-    return this.prisma.chore.create({ data });
+    const created = await this.prisma.chore.create({ data });
+    this.realtime.emitToHousehold(householdId, RealtimeEvents.CHORE_CREATED, {
+      chore: created,
+    });
+    return created;
   }
 
   async markComplete(choreId: number, householdId: number) {
@@ -46,6 +55,9 @@ export class ChoreService {
     if (res.count === 0) {
       throw new NotFoundException('Chore not found.');
     }
+    this.realtime.emitToHousehold(householdId, RealtimeEvents.CHORE_COMPLETED, {
+      choreId,
+    });
     return res;
   }
 
@@ -56,6 +68,9 @@ export class ChoreService {
     if (res.count === 0) {
       throw new NotFoundException('Chore not found.');
     }
+    this.realtime.emitToHousehold(householdId, RealtimeEvents.CHORE_DELETED, {
+      choreId,
+    });
     return res;
   }
 
@@ -106,6 +121,27 @@ export class ChoreService {
       }
     }
 
-    return this.prisma.chore.update({ where: { id: choreId }, data });
+    const updated = await this.prisma.chore.update({
+      where: { id: choreId },
+      data,
+    });
+    this.realtime.emitToHousehold(householdId, RealtimeEvents.CHORE_UPDATED, {
+      chore: updated,
+    });
+    if (dto.isComplete === true) {
+      this.realtime.emitToHousehold(
+        householdId,
+        RealtimeEvents.CHORE_COMPLETED,
+        { choreId },
+      );
+    }
+    if (dto.assignedToId !== undefined) {
+      this.realtime.emitToHousehold(
+        householdId,
+        RealtimeEvents.CHORE_ASSIGNED,
+        { choreId, assignedToId: dto.assignedToId },
+      );
+    }
+    return updated;
   }
 }
