@@ -9,6 +9,31 @@ This folder contains module-focused documentation for the HomeBase backend. Each
 - Auth via JWT Bearer tokens
 - Database via Prisma (PostgreSQL)
 
+### Authentication
+
+- All business endpoints require Bearer JWT (see Auth module). Example header:
+
+```
+Authorization: Bearer <JWT>
+```
+
+### Error shape
+
+Standard NestJS HTTP errors with JSON bodies, e.g.:
+
+```
+{
+  "statusCode": 400,
+  "message": "Validation failed (numeric string is expected)",
+  "error": "Bad Request"
+}
+```
+
+### Realtime
+
+- Socket.IO gateway exposes events under `src/realtime`.
+- See ./realtime/README.md for rooms, events and client example.
+
 ## Modules
 
 - Auth: ./auth/README.md

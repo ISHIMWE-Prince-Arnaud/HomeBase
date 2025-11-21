@@ -15,6 +15,12 @@ Database access via Prisma Client and NestJS PrismaService.
 - npx prisma studio (optional)
 - npx prisma migrate dev (if using migrations)
 
+### Migration tips
+
+- During development, prefer `prisma migrate dev` to evolve the schema and generate types.
+- For resetting local DB state (destructive): `prisma migrate reset` (will drop & recreate). Use with caution.
+- Keep `schema.prisma` in sync with actual relations used in services.
+
 ## Models
 
 - User, Household, Chore, Expense, ExpenseParticipant, HouseholdNeed, Payment, Notification
@@ -41,3 +47,19 @@ Database access via Prisma Client and NestJS PrismaService.
 - HouseholdNeed → Household; HouseholdNeed → User (`addedById`); optional HouseholdNeed → User (`purchasedById`).
 - Payment → User (`fromUserId`), Payment → User (`toUserId`), Payment → Household.
 - Notification → Household; optional Notification → User.
+
+## Example: using Prisma Client in a service
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+
+@Injectable()
+export class ExampleService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async listHouseholdChores(householdId: number) {
+    return this.prisma.chore.findMany({ where: { householdId } });
+  }
+}
+```
