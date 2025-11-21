@@ -7,12 +7,15 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { NotificationService } from 'src/notification/notification.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
+import { RealtimeService } from 'src/realtime/realtime.service';
+import { RealtimeEvents } from 'src/realtime/realtime.events';
 
 @Injectable()
 export class PaymentService {
   constructor(
     private prisma: PrismaService,
     private notifications: NotificationService,
+    private realtime: RealtimeService,
   ) {}
 
   private async getDirectDebtAmount(
@@ -154,11 +157,23 @@ export class PaymentService {
       toUserId,
     );
 
+    // realtime events: payment recorded and balance updated
+    this.realtime.emitToHousehold(
+      householdId,
+      RealtimeEvents.PAYMENT_RECORDED,
+      { payment },
+    );
+
     // Compute remaining direct debt between the pair after this payment
     const remainingDirectDebt = await this.getDirectDebtAmount(
       householdId,
       fromUserId,
       toUserId,
+    );
+    this.realtime.emitToHousehold(
+      householdId,
+      RealtimeEvents.EXPENSE_BALANCE_UPDATED,
+      { reason: 'paymentRecorded', fromUserId, toUserId },
     );
     return { payment, remainingDirectDebt };
   }
