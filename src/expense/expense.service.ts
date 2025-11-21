@@ -6,6 +6,8 @@ import {
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { NotificationService } from 'src/notification/notification.service';
+import { RealtimeService } from 'src/realtime/realtime.service';
+import { RealtimeEvents } from 'src/realtime/realtime.events';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 
 @Injectable()
@@ -13,6 +15,7 @@ export class ExpenseService {
   constructor(
     private prisma: PrismaService,
     private notifications: NotificationService,
+    private realtime: RealtimeService,
   ) {}
 
   async createExpense(
@@ -93,6 +96,14 @@ export class ExpenseService {
       householdId,
       `${actor?.name ?? 'A member'} created expense ${dto.description}`,
       'createdExpense',
+    );
+    this.realtime.emitToHousehold(householdId, RealtimeEvents.EXPENSE_CREATED, {
+      expense: created,
+    });
+    this.realtime.emitToHousehold(
+      householdId,
+      RealtimeEvents.EXPENSE_BALANCE_UPDATED,
+      { reason: 'expenseCreated', expenseId: created.id },
     );
     return created;
   }
