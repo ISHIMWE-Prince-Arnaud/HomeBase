@@ -3,10 +3,19 @@ import {
   IsDateString,
   IsInt,
   IsOptional,
+  IsString,
   ValidateIf,
 } from 'class-validator';
 
 export class UpdateChoreDto {
+  @IsString()
+  @IsOptional()
+  title?: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
   @IsBoolean()
   @IsOptional()
   isComplete?: boolean;
