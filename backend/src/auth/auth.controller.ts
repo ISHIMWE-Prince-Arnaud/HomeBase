@@ -2,9 +2,10 @@ import { Controller, Post, Body, Get, Patch } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dto/register.dto';
 import { LoginUserDto } from './dto/login.dto';
-import { UseGuards, Req } from '@nestjs/common';
+import { UseGuards, Req, Res } from '@nestjs/common';
 import { JwtGuard } from './guards/jwt.guard';
 import type { Request } from 'express';
+import type { Response } from 'express';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 
@@ -13,13 +14,38 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  register(@Body() registerUserDto: RegisterUserDto) {
-    return this.authService.register(registerUserDto);
+  async register(
+    @Body() registerUserDto: RegisterUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { accessToken, user } =
+      await this.authService.register(registerUserDto);
+    const isProd = process.env.NODE_ENV === 'production';
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return { user };
   }
 
   @Post('login')
-  login(@Body() loginUserDto: LoginUserDto) {
-    return this.authService.login(loginUserDto);
+  async login(
+    @Body() loginUserDto: LoginUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { accessToken, user } = await this.authService.login(loginUserDto);
+    const isProd = process.env.NODE_ENV === 'production';
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return { user };
   }
 
   @UseGuards(JwtGuard)
@@ -45,5 +71,17 @@ export class AuthController {
     profileImage: string;
   }> {
     return this.authService.updateProfile(userId, dto);
+  }
+
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    const isProd = process.env.NODE_ENV === 'production';
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      path: '/',
+    });
+    return { message: 'Logged out' };
   }
 }
