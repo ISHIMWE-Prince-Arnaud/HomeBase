@@ -12,7 +12,7 @@ export function NeedList() {
   const [selectedNeed, setSelectedNeed] = useState<Need | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showPurchased, setShowPurchased] = useState(false);
+  const [tab, setTab] = useState<"pending" | "purchased" | "all">("pending");
 
   const handleMarkPurchased = (need: Need) => {
     setSelectedNeed(need);
@@ -47,9 +47,14 @@ export function NeedList() {
   const pendingNeeds = filteredNeeds.filter((n) => !n.isPurchased);
   const purchasedNeeds = filteredNeeds.filter((n) => n.isPurchased);
 
-  const hasNoResults =
-    (showPurchased ? purchasedNeeds.length === 0 : pendingNeeds.length === 0) &&
-    searchQuery;
+  const combinedNeeds = [...pendingNeeds, ...purchasedNeeds];
+  const currentList =
+    tab === "pending"
+      ? pendingNeeds
+      : tab === "purchased"
+      ? purchasedNeeds
+      : combinedNeeds;
+  const hasNoResults = currentList.length === 0 && searchQuery;
 
   return (
     <>
@@ -65,11 +70,12 @@ export function NeedList() {
           />
         </div>
 
-        {/* Tabs for Pending/Purchased */}
+        {/* Tabs for All/Pending/Purchased */}
         <Tabs
-          value={showPurchased ? "purchased" : "pending"}
-          onValueChange={(val) => setShowPurchased(val === "purchased")}>
+          value={tab}
+          onValueChange={(v) => setTab(v as "pending" | "purchased" | "all")}>
           <TabsList>
+            <TabsTrigger value="all">All ({combinedNeeds.length})</TabsTrigger>
             <TabsTrigger value="pending">
               Pending ({pendingNeeds.length})
             </TabsTrigger>
@@ -118,6 +124,30 @@ export function NeedList() {
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {purchasedNeeds.map((need) => (
+                  <NeedItem
+                    key={need.id}
+                    need={need}
+                    onMarkPurchased={handleMarkPurchased}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="all" className="mt-4">
+            {hasNoResults ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
+                <p>No items found matching "{searchQuery}"</p>
+                <p className="text-sm">Try a different search term.</p>
+              </div>
+            ) : combinedNeeds.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
+                <p className="text-lg font-medium">No items yet</p>
+                <p className="text-sm">Add items to your shopping list.</p>
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {combinedNeeds.map((need) => (
                   <NeedItem
                     key={need.id}
                     need={need}
