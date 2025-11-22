@@ -21,9 +21,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-// Actually I didn't install textarea. I'll use Input for description or install textarea.
-// Let's use Input for now to be safe, or install textarea.
-// I'll stick to Input for description for now.
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useHousehold } from "@/hooks/useHousehold";
@@ -34,6 +31,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 type ChoreFormValues = {
   title: string;
@@ -78,6 +85,7 @@ export function CreateChoreDialog() {
           Add Chore
         </Button>
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add New Chore</DialogTitle>
@@ -85,8 +93,10 @@ export function CreateChoreDialog() {
             Create a new chore for your household.
           </DialogDescription>
         </DialogHeader>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* TITLE */}
             <FormField
               control={form.control}
               name="title"
@@ -100,6 +110,8 @@ export function CreateChoreDialog() {
                 </FormItem>
               )}
             />
+
+            {/* DESCRIPTION */}
             <FormField
               control={form.control}
               name="description"
@@ -113,19 +125,89 @@ export function CreateChoreDialog() {
                 </FormItem>
               )}
             />
+
+            {/* DUE DATE — CUSTOM DATE + TIME PICKER */}
             <FormField
               control={form.control}
               name="dueDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Due Date</FormLabel>
-                  <FormControl>
-                    <Input type="datetime-local" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const dateValue = field.value ? new Date(field.value) : null;
+
+                return (
+                  <FormItem>
+                    <FormLabel>Due Date</FormLabel>
+
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}>
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {dateValue
+                              ? format(dateValue, "PPP HH:mm")
+                              : "Pick date & time"}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="w-auto p-2" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={dateValue || undefined}
+                          onSelect={(selected: Date | undefined) => {
+                            if (!selected) return;
+                            const updated = dateValue
+                              ? new Date(dateValue)
+                              : new Date();
+                            updated.setFullYear(selected.getFullYear());
+                            updated.setMonth(selected.getMonth());
+                            updated.setDate(selected.getDate());
+                            field.onChange(updated.toISOString());
+                          }}
+                        />
+
+                        <div className="mt-2 flex gap-2">
+                          <Input
+                            type="time"
+                            className="w-[140px]"
+                            value={
+                              dateValue
+                                ? `${String(dateValue.getHours()).padStart(
+                                    2,
+                                    "0"
+                                  )}:${String(dateValue.getMinutes()).padStart(
+                                    2,
+                                    "0"
+                                  )}`
+                                : ""
+                            }
+                            onChange={(e) => {
+                              const [h, m] = e.target.value
+                                .split(":")
+                                .map(Number);
+                              const updated = dateValue
+                                ? new Date(dateValue)
+                                : new Date();
+                              updated.setHours(h);
+                              updated.setMinutes(m);
+                              field.onChange(updated.toISOString());
+                            }}
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
+
+            {/* ASSIGNED TO */}
             <FormField
               control={form.control}
               name="assignedToId"
@@ -160,6 +242,8 @@ export function CreateChoreDialog() {
                 </FormItem>
               )}
             />
+
+            {/* SUBMIT BUTTON */}
             <Button type="submit" className="w-full" disabled={isCreating}>
               {isCreating ? "Creating..." : "Create Chore"}
             </Button>
