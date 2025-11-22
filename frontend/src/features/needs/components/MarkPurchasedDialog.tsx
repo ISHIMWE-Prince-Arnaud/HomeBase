@@ -75,6 +75,9 @@ export function MarkPurchasedDialog({
       {
         onSuccess: () => {
           onOpenChange(false);
+          if (data.createExpense) {
+            // Toast will be shown by the hook, but we can add additional confirmation here if needed
+          }
         },
       }
     );
@@ -86,7 +89,8 @@ export function MarkPurchasedDialog({
         <DialogHeader>
           <DialogTitle>Mark as Purchased</DialogTitle>
           <DialogDescription>
-            Confirm purchase of <strong>{need?.name}</strong>.
+            Confirm that you have purchased <strong>{need?.name}</strong>. You
+            can optionally create an expense entry for this purchase.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -157,12 +161,17 @@ export function MarkPurchasedDialog({
               </>
             )}
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isMarkingPurchased}>
-              {isMarkingPurchased ? "Processing..." : "Confirm Purchase"}
-            </Button>
+            <div className="flex gap-2 justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isMarkingPurchased}>
+                {isMarkingPurchased ? "Processing..." : "Confirm Purchase"}
+              </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>

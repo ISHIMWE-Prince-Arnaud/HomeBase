@@ -46,13 +46,14 @@ export const useNeeds = () => {
       needsApi.markPurchased(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["needs"] });
+      queryClient.invalidateQueries({ queryKey: ["expenses"] });
       const message = variables.data.createExpense
-        ? "Item purchased and expense created."
+        ? "Item marked as purchased and expense created successfully."
         : "Item marked as purchased.";
       toast.success("Success", message);
     },
     onError: () => {
-      toast.error("Error", "Failed to update item.");
+      toast.error("Error", "Failed to mark item as purchased.");
     },
   });
 
@@ -60,7 +61,7 @@ export const useNeeds = () => {
     mutationFn: needsApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["needs"] });
-      toast.success("Item removed");
+      toast.success("Item removed", "The item has been removed from your shopping list.");
     },
     onError: () => {
       toast.error("Error", "Failed to remove item.");
