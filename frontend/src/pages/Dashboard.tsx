@@ -139,7 +139,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
         {/* Quick Actions / Recent Activity */}
         <Card className="col-span-4">
           <CardHeader>
@@ -186,48 +186,55 @@ export default function DashboardPage() {
         </Card>
 
         {/* Household Preview */}
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Household</CardTitle>
+        <Card className="col-span-4 flex flex-col border shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              Household
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    {household.name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {household.members.length} members
-                  </p>
-                </div>
-                <Users className="h-4 w-4 text-muted-foreground" />
+
+          <CardContent className="space-y-5">
+            {/* Household Info */}
+            <div className="flex items-center justify-between rounded-md bg-muted/40 p-4">
+              <div>
+                <p className="text-base font-semibold">{household.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {household.members.length} members
+                </p>
               </div>
-              <div className="space-y-2">
-                {household.members.slice(0, 3).map((member) => (
-                  <div
-                    key={member.id}
-                    className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
-                        {member.name[0]}
-                      </div>
-                      <span>{member.name}</span>
-                    </div>
-                  </div>
-                ))}
-                {household.members.length > 3 && (
-                  <p className="text-xs text-muted-foreground text-center pt-2">
-                    +{household.members.length - 3} more members
-                  </p>
-                )}
-              </div>
-              <Button variant="ghost" className="w-full" asChild>
-                <Link to="/household">
-                  View All <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
             </div>
+
+            {/* Members List */}
+            <div className="space-y-3">
+              {household.members.slice(0, 3).map((member) => (
+                <div
+                  key={member.id}
+                  className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 flex items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
+                      {member.name[0]}
+                    </div>
+                    <span className="text-sm font-medium">{member.name}</span>
+                  </div>
+                </div>
+              ))}
+
+              {household.members.length > 3 && (
+                <p className="text-xs text-muted-foreground text-center pt-1">
+                  +{household.members.length - 3} more members
+                </p>
+              )}
+            </div>
+
+            {/* Button */}
+            <Button variant="outline" className="w-full group" asChild>
+              <Link
+                to="/household"
+                className="flex items-center justify-center">
+                View All
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
