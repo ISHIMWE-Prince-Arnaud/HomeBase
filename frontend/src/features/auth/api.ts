@@ -1,5 +1,5 @@
 import { api } from "@/api/client";
-import type { LoginInput, RegisterInput } from "./schema";
+import type { LoginInput, RegisterInput, UpdateProfileInput } from "./schema";
 
 export interface User {
   id: number;
@@ -25,6 +25,11 @@ export const authApi = {
 
   logout: async (): Promise<void> => {
     await api.post("/auth/logout");
+  },
+
+  updateProfile: async (data: UpdateProfileInput): Promise<User> => {
+    const response = await api.patch<User>("/auth/users/me", data);
+    return response.data;
   },
 
   getProfile: async (): Promise<User> => {

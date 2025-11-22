@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/features/auth/api";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["me"],
@@ -16,9 +18,6 @@ export const useAuth = () => {
   const loginMutation = useMutation({
     mutationFn: authApi.login,
     onSuccess: (data) => {
-      // In a real app with cookies, the cookie is set automatically.
-      // If using localStorage for token (not recommended but common), set it here.
-      // For now, assuming HTTP-only cookies or handled by interceptor if needed.
       queryClient.setQueryData(["me"], data.user);
       navigate("/dashboard");
     },
@@ -39,6 +38,31 @@ export const useAuth = () => {
       queryClient.clear(); // Clear all cache
       navigate("/login");
     },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to logout.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateProfileMutation = useMutation({
+    mutationFn: authApi.updateProfile,
+    onSuccess: (data) => {
+      queryClient.setQueryData(["me"], data);
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been successfully updated.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Check your password.",
+        variant: "destructive",
+      });
+    },
   });
 
   return {
@@ -50,5 +74,7 @@ export const useAuth = () => {
     register: registerMutation.mutate,
     isRegistering: registerMutation.isPending,
     logout: logoutMutation.mutate,
+    updateProfile: updateProfileMutation.mutate,
+    isUpdatingProfile: updateProfileMutation.isPending,
   };
 };

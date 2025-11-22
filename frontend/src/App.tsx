@@ -10,6 +10,7 @@ import ExpensesPage from "./pages/Expenses";
 import PaymentsPage from "./pages/Payments";
 import HouseholdPage from "./pages/Household";
 import NotificationsPage from "./pages/Notifications";
+import ProfilePage from "@/pages/Profile";
 
 function App() {
   return (
@@ -30,7 +31,7 @@ function App() {
           <Route path="/payments" element={<PaymentsPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/household" element={<HouseholdPage />} />
-          <Route path="/profile" element={<div>Profile Content</div>} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
       </Route>
 
