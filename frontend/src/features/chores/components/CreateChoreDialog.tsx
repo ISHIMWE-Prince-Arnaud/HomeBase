@@ -1,0 +1,116 @@
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useChores } from "@/hooks/useChores";
+import { createChoreSchema, type CreateChoreInput } from "../schema";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+// Actually I didn't install textarea. I'll use Input for description or install textarea.
+// Let's use Input for now to be safe, or install textarea.
+// I'll stick to Input for description for now.
+import { useState } from "react";
+import { Plus } from "lucide-react";
+
+export function CreateChoreDialog() {
+  const [open, setOpen] = useState(false);
+  const { createChore, isCreating } = useChores();
+
+  const form = useForm<z.input<typeof createChoreSchema>>({
+    resolver: zodResolver(createChoreSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      dueDate: "",
+    },
+  });
+
+  const onSubmit = (data: unknown) => {
+    createChore(data as CreateChoreInput, {
+      onSuccess: () => {
+        setOpen(false);
+        form.reset();
+      },
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Chore
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Add New Chore</DialogTitle>
+          <DialogDescription>
+            Create a new chore for your household.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Clean the kitchen" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Optional details..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="dueDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Due Date</FormLabel>
+                  <FormControl>
+                    <Input type="datetime-local" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full" disabled={isCreating}>
+              {isCreating ? "Creating..." : "Create Chore"}
+            </Button>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
