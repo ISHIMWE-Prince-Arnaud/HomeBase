@@ -6,6 +6,7 @@ import AppLayout from "@/layouts/AppLayout";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import ChoresPage from "@/pages/Chores";
 import NeedsPage from "@/pages/Needs";
+import ExpensesPage from "./pages/Expenses";
 
 function App() {
   return (
@@ -23,7 +24,7 @@ function App() {
             <Route path="/dashboard" element={<div>Dashboard Content</div>} />
             <Route path="/chores" element={<ChoresPage />} />
             <Route path="/needs" element={<NeedsPage />} />
-            <Route path="/expenses" element={<div>Expenses Content</div>} />
+            <Route path="/expenses" element={<ExpensesPage />} />
             <Route path="/payments" element={<div>Payments Content</div>} />
             <Route
               path="/notifications"
