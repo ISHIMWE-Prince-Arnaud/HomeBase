@@ -9,6 +9,7 @@ import NeedsPage from "@/pages/Needs";
 import ExpensesPage from "./pages/Expenses";
 import PaymentsPage from "./pages/Payments";
 import HouseholdPage from "./pages/Household";
+import NotificationsPage from "./pages/Notifications";
 
 function App() {
   return (
@@ -28,10 +29,7 @@ function App() {
             <Route path="/needs" element={<NeedsPage />} />
             <Route path="/expenses" element={<ExpensesPage />} />
             <Route path="/payments" element={<PaymentsPage />} />
-            <Route
-              path="/notifications"
-              element={<div>Notifications Content</div>}
-            />
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/household" element={<HouseholdPage />} />
             <Route path="/profile" element={<div>Profile Content</div>} />
           </Route>
