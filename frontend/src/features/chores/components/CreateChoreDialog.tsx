@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useChores } from "@/hooks/useChores";
 import { createChoreSchema, type CreateChoreInput } from "../schema";
@@ -26,22 +26,43 @@ import { Input } from "@/components/ui/input";
 // I'll stick to Input for description for now.
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { useHousehold } from "@/hooks/useHousehold";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+type ChoreFormValues = {
+  title: string;
+  description: string;
+  dueDate: string;
+  assignedToId?: number;
+};
 
 export function CreateChoreDialog() {
   const [open, setOpen] = useState(false);
   const { createChore, isCreating } = useChores();
+  const { household } = useHousehold();
 
-  const form = useForm<z.input<typeof createChoreSchema>>({
-    resolver: zodResolver(createChoreSchema),
+  const form = useForm<ChoreFormValues>({
+    resolver: zodResolver(createChoreSchema) as Resolver<ChoreFormValues>,
     defaultValues: {
       title: "",
       description: "",
       dueDate: "",
+      assignedToId: undefined,
     },
   });
 
-  const onSubmit = (data: unknown) => {
-    createChore(data as CreateChoreInput, {
+  const onSubmit = (data: ChoreFormValues) => {
+    const parsed: CreateChoreInput = createChoreSchema.parse(
+      data as z.input<typeof createChoreSchema>
+    );
+
+    createChore(parsed, {
       onSuccess: () => {
         setOpen(false);
         form.reset();
@@ -101,6 +122,40 @@ export function CreateChoreDialog() {
                   <FormControl>
                     <Input type="datetime-local" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="assignedToId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Assigned To</FormLabel>
+                  <Select
+                    onValueChange={(val) =>
+                      field.onChange(val ? Number(val) : undefined)
+                    }
+                    value={
+                      field.value === undefined || field.value === null
+                        ? ""
+                        : String(field.value)
+                    }>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Unassigned" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {household?.members.map((member) => (
+                        <SelectItem
+                          key={member.id}
+                          value={member.id.toString()}>
+                          {member.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
