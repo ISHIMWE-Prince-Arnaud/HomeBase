@@ -18,7 +18,10 @@ export class ChoreService {
   ) {}
 
   async getChoresByHousehold(householdId: number) {
-    return this.prisma.chore.findMany({ where: { householdId } });
+    return this.prisma.chore.findMany({
+      where: { householdId },
+      include: { assignedTo: true },
+    });
   }
 
   async createChore(householdId: number, dto: CreateChoreDto) {
@@ -40,7 +43,10 @@ export class ChoreService {
       householdId,
       assignedToId: dto.assignedToId,
     };
-    const created = await this.prisma.chore.create({ data });
+    const created = await this.prisma.chore.create({
+      data,
+      include: { assignedTo: true },
+    });
     this.realtime.emitToHousehold(householdId, RealtimeEvents.CHORE_CREATED, {
       chore: created,
     });
@@ -77,6 +83,7 @@ export class ChoreService {
   async getChoreById(choreId: number, householdId: number) {
     const chore = await this.prisma.chore.findFirst({
       where: { id: choreId, householdId },
+      include: { assignedTo: true },
     });
     if (!chore) {
       throw new NotFoundException('Chore not found.');
@@ -124,6 +131,7 @@ export class ChoreService {
     const updated = await this.prisma.chore.update({
       where: { id: choreId },
       data,
+      include: { assignedTo: true },
     });
     this.realtime.emitToHousehold(householdId, RealtimeEvents.CHORE_UPDATED, {
       chore: updated,

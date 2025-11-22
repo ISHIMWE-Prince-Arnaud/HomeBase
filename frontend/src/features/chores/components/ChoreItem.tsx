@@ -32,17 +32,17 @@ export function ChoreItem({ chore }: { chore: Chore }) {
   return (
     <Card
       className={cn(
-        "flex flex-col h-full transition-all hover:shadow-md border-l-4",
+        "flex flex-col h-full transition-all hover:shadow-md border-l-[6px]",
         chore.isComplete
-          ? "border-l-green-500 opacity-75 bg-muted/30"
+          ? "border-l-green-500/50 bg-muted/30 opacity-75"
           : isOverdue
           ? "border-l-destructive"
           : "border-l-primary"
       )}>
       <CardHeader className="p-4 pb-2 space-y-0">
         <div className="flex justify-between items-start gap-2">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
+          <div className="space-y-1.5 w-full">
+            <div className="flex items-center justify-between w-full">
               <h3
                 className={cn(
                   "font-semibold leading-none tracking-tight",
@@ -51,7 +51,9 @@ export function ChoreItem({ chore }: { chore: Chore }) {
                 {chore.title}
               </h3>
               {isOverdue && (
-                <Badge variant="destructive" className="text-[10px] h-5 px-1.5">
+                <Badge
+                  variant="destructive"
+                  className="text-[10px] h-5 px-1.5 shrink-0">
                   Overdue
                 </Badge>
               )}
@@ -81,33 +83,6 @@ export function ChoreItem({ chore }: { chore: Chore }) {
               </div>
             )}
           </div>
-
-          {/* Assignee Avatar - Top Right */}
-          {chore.assignedTo ? (
-            <div
-              className="flex flex-col items-end"
-              title={`Assigned to ${chore.assignedTo.name}`}>
-              <Avatar className="h-8 w-8 border-2 border-background shadow-sm">
-                <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                  {chore.assignedTo.name.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-[10px] text-muted-foreground mt-1 max-w-[60px] truncate">
-                {chore.assignedTo.name}
-              </span>
-            </div>
-          ) : (
-            <div
-              className="flex flex-col items-end opacity-50"
-              title="Unassigned">
-              <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center border-2 border-background">
-                <UserIcon className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <span className="text-[10px] text-muted-foreground mt-1">
-                Unassigned
-              </span>
-            </div>
-          )}
         </div>
       </CardHeader>
 
@@ -123,76 +98,105 @@ export function ChoreItem({ chore }: { chore: Chore }) {
         )}
       </CardContent>
 
-      <CardFooter className="p-3 bg-muted/20 flex gap-2 items-center justify-between">
-        {/* Delete Button */}
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-destructive h-8 px-2"
-              disabled={isDeleting}>
-              <Trash2 className="h-4 w-4 mr-1" />
-              <span className="text-xs">Delete</span>
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete chore?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete "{chore.title}"? This action
-                cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => deleteChore(chore.id)}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+      <CardFooter className="p-3 bg-muted/20 flex flex-col gap-3">
+        {/* Assignee Section - Full Width */}
+        <div className="w-full flex items-center gap-2 pb-3 border-b border-border/50">
+          {chore.assignedTo ? (
+            <>
+              <Avatar className="h-6 w-6 border border-background shadow-sm">
+                <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                  {chore.assignedTo.name.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-xs text-muted-foreground">
+                Assigned to{" "}
+                <span className="font-medium text-foreground">
+                  {chore.assignedTo.name}
+                </span>
+              </span>
+            </>
+          ) : (
+            <>
+              <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center border border-background">
+                <UserIcon className="h-3 w-3 text-muted-foreground" />
+              </div>
+              <span className="text-xs text-muted-foreground italic">
+                Unassigned
+              </span>
+            </>
+          )}
+        </div>
 
-        {/* Complete Button */}
-        {!chore.isComplete ? (
+        {/* Actions Section */}
+        <div className="w-full flex items-center justify-between gap-2">
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
-                variant="default"
+                variant="ghost"
                 size="sm"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 shadow-sm"
-                disabled={isCompleting}>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Mark Complete
+                className="text-muted-foreground hover:text-destructive h-8 px-2"
+                disabled={isDeleting}>
+                <Trash2 className="h-4 w-4 mr-1" />
+                <span className="text-xs">Delete</span>
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Mark as complete?</AlertDialogTitle>
+                <AlertDialogTitle>Delete chore?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Confirm that you have completed "{chore.title}".
+                  Are you sure you want to delete "{chore.title}"? This action
+                  cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => completeChore(chore.id)}>
-                  Yes, Complete
+                <AlertDialogAction
+                  onClick={() => deleteChore(chore.id)}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Delete
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        ) : (
-          <Button
-            variant="secondary"
-            size="sm"
-            className="bg-green-100 text-green-700 hover:bg-green-200 border border-green-200 h-8 cursor-default"
-            disabled>
-            <CheckCircle className="h-4 w-4 mr-2" />
-            Completed
-          </Button>
-        )}
+
+          {!chore.isComplete ? (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 shadow-sm ml-auto"
+                  disabled={isCompleting}>
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Mark Complete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Mark as complete?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Confirm that you have completed "{chore.title}".
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => completeChore(chore.id)}>
+                    Yes, Complete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          ) : (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="bg-green-100 text-green-700 hover:bg-green-200 border border-green-200 h-8 cursor-default ml-auto"
+              disabled>
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Completed
+            </Button>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );
