@@ -199,7 +199,8 @@ export default function DashboardPage() {
               <div>
                 <p className="text-base font-semibold">{household.name}</p>
                 <p className="text-sm text-muted-foreground">
-                  {household.members.length} members
+                  {household.members.length}{" "}
+                  {household.members.length === 1 ? "member" : "members"}
                 </p>
               </div>
             </div>
