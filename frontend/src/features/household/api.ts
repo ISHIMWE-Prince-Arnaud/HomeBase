@@ -1,18 +1,18 @@
 import { api } from "@/api/client";
 import type { CreateHouseholdInput, JoinHouseholdInput } from "./schema";
 
-export interface User {
+export interface HouseholdMember {
   id: number;
+  name: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  profileImage?: string;
 }
 
 export interface Household {
   id: number;
   name: string;
   currency: string;
-  members: User[];
+  members: HouseholdMember[];
   ownerId: number;
   inviteCode: string;
   createdAt: string;

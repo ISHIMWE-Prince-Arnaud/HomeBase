@@ -190,7 +190,7 @@ export function CreateExpenseDialog() {
                         <SelectItem
                           key={member.id}
                           value={member.id.toString()}>
-                          {member.firstName} {member.lastName}
+                          {member.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -241,7 +241,7 @@ export function CreateExpenseDialog() {
                                 />
                               </FormControl>
                               <FormLabel className="font-normal">
-                                {member.firstName}
+                                {member.name}
                               </FormLabel>
                             </FormItem>
                           );

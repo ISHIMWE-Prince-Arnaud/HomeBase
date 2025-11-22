@@ -25,7 +25,7 @@ export function PaymentList() {
 
   const getMemberName = (id: number) => {
     const member = household?.members.find((m) => m.id === id);
-    return member ? `${member.firstName} ${member.lastName}` : "Unknown";
+    return member ? member.name : "Unknown";
   };
 
   return (

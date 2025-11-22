@@ -85,14 +85,11 @@ export function HouseholdInfo() {
               {household.members.map((member) => (
                 <div key={member.id} className="flex items-center space-x-4">
                   <Avatar>
-                    <AvatarFallback>
-                      {member.firstName[0]}
-                      {member.lastName[0]}
-                    </AvatarFallback>
+                    <AvatarFallback>{member.name[0]}</AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium leading-none">
-                      {member.firstName} {member.lastName}
+                      {member.name}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {member.email}

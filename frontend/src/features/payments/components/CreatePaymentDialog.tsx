@@ -99,7 +99,7 @@ export function CreatePaymentDialog() {
                         <SelectItem
                           key={member.id}
                           value={member.id.toString()}>
-                          {member.firstName} {member.lastName}
+                          {member.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
