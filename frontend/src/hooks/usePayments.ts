@@ -1,10 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { paymentsApi } from "@/features/payments/api";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/lib/toast";
 
 export const usePayments = () => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   const {
     data: payments,
@@ -23,17 +22,13 @@ export const usePayments = () => {
       queryClient.invalidateQueries({ queryKey: ["expenses", "balance"] });
       queryClient.invalidateQueries({ queryKey: ["expenses", "settlements"] });
 
-      toast({
-        title: "Payment recorded",
-        description: "The payment has been successfully recorded.",
-      });
+      toast.success(
+        "Payment recorded",
+        "The payment has been successfully recorded."
+      );
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to record payment.",
-        variant: "destructive",
-      });
+      toast.error("Error", "Failed to record payment.");
     },
   });
 

@@ -4,11 +4,10 @@ import type {
   MarkPurchasedInput,
   UpdateNeedInput,
 } from "@/features/needs/schema";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/lib/toast";
 
 export const useNeeds = () => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   const {
     data: needs,
@@ -23,14 +22,10 @@ export const useNeeds = () => {
     mutationFn: needsApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["needs"] });
-      toast({ title: "Item added", description: "Added to shopping list." });
+      toast.success("Item added", "Added to shopping list.");
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to add item.",
-        variant: "destructive",
-      });
+      toast.error("Error", "Failed to add item.");
     },
   });
 
@@ -39,7 +34,10 @@ export const useNeeds = () => {
       needsApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["needs"] });
-      toast({ title: "Item updated" });
+      toast.success("Item updated");
+    },
+    onError: () => {
+      toast.error("Error", "Failed to update item.");
     },
   });
 
@@ -51,14 +49,10 @@ export const useNeeds = () => {
       const message = variables.data.createExpense
         ? "Item purchased and expense created."
         : "Item marked as purchased.";
-      toast({ title: "Success", description: message });
+      toast.success("Success", message);
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update item.",
-        variant: "destructive",
-      });
+      toast.error("Error", "Failed to update item.");
     },
   });
 
@@ -66,7 +60,10 @@ export const useNeeds = () => {
     mutationFn: needsApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["needs"] });
-      toast({ title: "Item removed" });
+      toast.success("Item removed");
+    },
+    onError: () => {
+      toast.error("Error", "Failed to remove item.");
     },
   });
 

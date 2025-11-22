@@ -1,12 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/features/auth/api";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/lib/toast";
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["me"],
@@ -19,7 +18,11 @@ export const useAuth = () => {
     mutationFn: authApi.login,
     onSuccess: (data) => {
       queryClient.setQueryData(["me"], data.user);
+      toast.success("Welcome back!", `Logged in as ${data.user.name}`);
       navigate("/dashboard");
+    },
+    onError: () => {
+      toast.error("Login failed", "Please check your credentials.");
     },
   });
 
@@ -27,7 +30,11 @@ export const useAuth = () => {
     mutationFn: authApi.register,
     onSuccess: (data) => {
       queryClient.setQueryData(["me"], data.user);
+      toast.success("Welcome!", "Account created successfully.");
       navigate("/dashboard");
+    },
+    onError: () => {
+      toast.error("Registration failed", "Please try again.");
     },
   });
 
@@ -37,13 +44,10 @@ export const useAuth = () => {
       queryClient.setQueryData(["me"], null);
       queryClient.clear(); // Clear all cache
       navigate("/login");
+      toast.success("Logged out", "See you soon!");
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to logout.",
-        variant: "destructive",
-      });
+      toast.error("Error", "Failed to logout.");
     },
   });
 
@@ -51,17 +55,13 @@ export const useAuth = () => {
     mutationFn: authApi.updateProfile,
     onSuccess: (data) => {
       queryClient.setQueryData(["me"], data);
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated.",
-      });
+      toast.success(
+        "Profile updated",
+        "Your profile has been successfully updated."
+      );
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update profile. Check your password.",
-        variant: "destructive",
-      });
+      toast.error("Error", "Failed to update profile. Check your password.");
     },
   });
 

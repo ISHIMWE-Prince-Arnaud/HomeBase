@@ -1,11 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { choresApi } from "@/features/chores/api";
 import type { UpdateChoreInput } from "@/features/chores/schema";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/lib/toast";
 
 export const useChores = () => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   const {
     data: chores,
@@ -20,17 +19,10 @@ export const useChores = () => {
     mutationFn: choresApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chores"] });
-      toast({
-        title: "Chore created",
-        description: "The chore has been successfully added.",
-      });
+      toast.success("Chore created", "The chore has been successfully added.");
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to create chore.",
-        variant: "destructive",
-      });
+      toast.error("Error", "Failed to create chore.");
     },
   });
 
@@ -39,7 +31,10 @@ export const useChores = () => {
       choresApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chores"] });
-      toast({ title: "Chore updated" });
+      toast.success("Chore updated");
+    },
+    onError: () => {
+      toast.error("Error", "Failed to update chore.");
     },
   });
 
@@ -47,7 +42,10 @@ export const useChores = () => {
     mutationFn: choresApi.complete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chores"] });
-      toast({ title: "Chore completed", description: "Great job!" });
+      toast.success("Chore completed", "Great job!");
+    },
+    onError: () => {
+      toast.error("Error", "Failed to complete chore.");
     },
   });
 
@@ -55,7 +53,10 @@ export const useChores = () => {
     mutationFn: choresApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chores"] });
-      toast({ title: "Chore deleted" });
+      toast.success("Chore deleted");
+    },
+    onError: () => {
+      toast.error("Error", "Failed to delete chore.");
     },
   });
 

@@ -1,10 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { expensesApi } from "@/features/expenses/api";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/lib/toast";
 
 export const useExpenses = () => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   const { data: expenses, isLoading: isLoadingExpenses } = useQuery({
     queryKey: ["expenses"],
@@ -30,17 +29,10 @@ export const useExpenses = () => {
     mutationFn: expensesApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
-      toast({
-        title: "Expense added",
-        description: "The expense has been recorded.",
-      });
+      toast.success("Expense added", "The expense has been recorded.");
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to add expense.",
-        variant: "destructive",
-      });
+      toast.error("Error", "Failed to add expense.");
     },
   });
 

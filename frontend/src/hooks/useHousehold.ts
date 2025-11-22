@@ -1,11 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { householdApi } from "@/features/household/api";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/lib/toast";
 import { useNavigate } from "react-router-dom";
 
 export const useHousehold = () => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   const {
@@ -23,17 +22,10 @@ export const useHousehold = () => {
     mutationFn: householdApi.create,
     onSuccess: (data) => {
       queryClient.setQueryData(["household", "me"], data);
-      toast({
-        title: "Household created",
-        description: `Welcome to ${data.name}!`,
-      });
+      toast.success("Household created", `Welcome to ${data.name}!`);
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to create household.",
-        variant: "destructive",
-      });
+      toast.error("Error", "Failed to create household.");
     },
   });
 
@@ -41,17 +33,13 @@ export const useHousehold = () => {
     mutationFn: householdApi.join,
     onSuccess: (data) => {
       queryClient.setQueryData(["household", "me"], data);
-      toast({
-        title: "Joined household",
-        description: `You are now a member of ${data.name}.`,
-      });
+      toast.success(
+        "Joined household",
+        `You are now a member of ${data.name}.`
+      );
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to join household. Check the invite code.",
-        variant: "destructive",
-      });
+      toast.error("Error", "Failed to join household. Check the invite code.");
     },
   });
 
@@ -63,18 +51,11 @@ export const useHousehold = () => {
       queryClient.invalidateQueries({ queryKey: ["needs"] });
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
       queryClient.invalidateQueries({ queryKey: ["payments"] });
-      toast({
-        title: "Left household",
-        description: "You have left the household.",
-      });
+      toast.success("Left household", "You have left the household.");
       navigate("/dashboard");
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to leave household.",
-        variant: "destructive",
-      });
+      toast.error("Error", "Failed to leave household.");
     },
   });
 
