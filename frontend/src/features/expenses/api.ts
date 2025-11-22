@@ -40,4 +40,8 @@ export const expensesApi = {
     const response = await api.get<Settlement[]>("/expenses/settlements");
     return response.data;
   },
+  getMySettlements: async () => {
+    const response = await api.get<Settlement[]>("/expenses/settlements/me");
+    return response.data;
+  },
 };

@@ -21,6 +21,11 @@ export const useExpenses = () => {
     queryFn: expensesApi.getSettlements,
   });
 
+  const { data: mySettlements, isLoading: isLoadingMySettlements } = useQuery({
+    queryKey: ["expenses", "settlements", "me"],
+    queryFn: expensesApi.getMySettlements,
+  });
+
   const createExpenseMutation = useMutation({
     mutationFn: expensesApi.create,
     onSuccess: () => {
@@ -43,7 +48,12 @@ export const useExpenses = () => {
     expenses,
     balance,
     settlements,
-    isLoading: isLoadingExpenses || isLoadingBalance || isLoadingSettlements,
+    mySettlements,
+    isLoading:
+      isLoadingExpenses ||
+      isLoadingBalance ||
+      isLoadingSettlements ||
+      isLoadingMySettlements,
     createExpense: createExpenseMutation.mutate,
     isCreating: createExpenseMutation.isPending,
   };

@@ -1,6 +1,7 @@
 import { ExpenseList } from "@/features/expenses/components/ExpenseList";
 import { ExpenseBalance } from "@/features/expenses/components/ExpenseBalance";
 import { CreateExpenseDialog } from "@/features/expenses/components/CreateExpenseDialog";
+import { MySettlements } from "@/features/expenses/components/MySettlements";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function ExpensesPage() {
@@ -22,12 +23,16 @@ export default function ExpensesPage() {
         <TabsList>
           <TabsTrigger value="history">History</TabsTrigger>
           <TabsTrigger value="balances">Balances</TabsTrigger>
+          <TabsTrigger value="my-settlements">My Settlements</TabsTrigger>
         </TabsList>
         <TabsContent value="history" className="mt-4">
           <ExpenseList />
         </TabsContent>
         <TabsContent value="balances" className="mt-4">
           <ExpenseBalance />
+        </TabsContent>
+        <TabsContent value="my-settlements" className="mt-4">
+          <MySettlements />
         </TabsContent>
       </Tabs>
     </div>
