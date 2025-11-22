@@ -83,6 +83,24 @@ export class RealtimeGateway
     if (authHeader?.startsWith('Bearer ')) {
       return authHeader.slice(7);
     }
+
+    // Check for cookie
+    const cookieHeader = socket.handshake.headers.cookie;
+    if (cookieHeader) {
+      const cookies = cookieHeader.split(';').reduce(
+        (acc, cookie) => {
+          const [key, value] = cookie.trim().split('=');
+          acc[key] = value;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+
+      if (cookies['access_token']) {
+        return cookies['access_token'];
+      }
+    }
+
     const tokenFromAuth: unknown = socket.handshake.auth?.token;
     if (typeof tokenFromAuth === 'string') {
       return tokenFromAuth.startsWith('Bearer ')
