@@ -7,6 +7,7 @@ import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import ChoresPage from "@/pages/Chores";
 import NeedsPage from "@/pages/Needs";
 import ExpensesPage from "./pages/Expenses";
+import PaymentsPage from "./pages/Payments";
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
             <Route path="/chores" element={<ChoresPage />} />
             <Route path="/needs" element={<NeedsPage />} />
             <Route path="/expenses" element={<ExpensesPage />} />
-            <Route path="/payments" element={<div>Payments Content</div>} />
+            <Route path="/payments" element={<PaymentsPage />} />
             <Route
               path="/notifications"
               element={<div>Notifications Content</div>}
