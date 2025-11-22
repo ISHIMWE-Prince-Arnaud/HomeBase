@@ -6,11 +6,12 @@ import AppLayout from "@/layouts/AppLayout";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import ChoresPage from "@/pages/Chores";
 import NeedsPage from "@/pages/Needs";
-import ExpensesPage from "./pages/Expenses";
-import PaymentsPage from "./pages/Payments";
-import HouseholdPage from "./pages/Household";
-import NotificationsPage from "./pages/Notifications";
+import ExpensesPage from "@/pages/Expenses";
+import PaymentsPage from "@/pages/Payments";
+import HouseholdPage from "@/pages/Household";
+import NotificationsPage from "@/pages/Notifications";
 import ProfilePage from "@/pages/Profile";
+import DashboardPage from "@/pages/Dashboard";
 
 function App() {
   return (
@@ -24,7 +25,7 @@ function App() {
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<div>Dashboard Content</div>} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/chores" element={<ChoresPage />} />
           <Route path="/needs" element={<NeedsPage />} />
           <Route path="/expenses" element={<ExpensesPage />} />
