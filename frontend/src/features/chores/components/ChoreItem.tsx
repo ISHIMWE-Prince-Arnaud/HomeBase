@@ -195,7 +195,7 @@ export function ChoreItem({ chore }: { chore: Chore }) {
                     className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 shadow-sm ml-auto"
                     disabled={isCompleting}>
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    Mark Complete
+                    Complete
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>

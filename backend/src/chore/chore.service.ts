@@ -101,6 +101,12 @@ export class ChoreService {
     }
 
     const data: Prisma.ChoreUpdateInput = {};
+    if (dto.title !== undefined) {
+      data.title = dto.title;
+    }
+    if (dto.description !== undefined) {
+      data.description = dto.description;
+    }
     if (dto.isComplete !== undefined) {
       data.isComplete = dto.isComplete;
     }
