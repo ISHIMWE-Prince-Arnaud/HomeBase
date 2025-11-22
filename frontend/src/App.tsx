@@ -8,6 +8,7 @@ import ChoresPage from "@/pages/Chores";
 import NeedsPage from "@/pages/Needs";
 import ExpensesPage from "./pages/Expenses";
 import PaymentsPage from "./pages/Payments";
+import HouseholdPage from "./pages/Household";
 
 function App() {
   return (
@@ -31,7 +32,7 @@ function App() {
               path="/notifications"
               element={<div>Notifications Content</div>}
             />
-            <Route path="/household" element={<div>Household Content</div>} />
+            <Route path="/household" element={<HouseholdPage />} />
             <Route path="/profile" element={<div>Profile Content</div>} />
           </Route>
         </Route>
