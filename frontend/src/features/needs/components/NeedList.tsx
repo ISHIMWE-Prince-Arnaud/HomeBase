@@ -33,8 +33,8 @@ export function NeedList() {
   // Filter out purchased items if we only want to see pending ones?
   // Usually a shopping list shows what you need. Purchased items might disappear or go to history.
   // For now, let's show all but maybe sort pending first.
-  // Actually, let's filter to show only PENDING for the main list to keep it clean.
-  const pendingNeeds = needs?.filter((n) => n.status === "PENDING") || [];
+  // Actually, let's filter to show only pending items for the main list to keep it clean.
+  const pendingNeeds = needs?.filter((n) => !n.isPurchased) || [];
 
   if (!pendingNeeds.length) {
     return (

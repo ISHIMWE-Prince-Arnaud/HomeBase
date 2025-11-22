@@ -8,6 +8,7 @@ export interface Payment {
   amount: number;
   householdId: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 export const paymentsApi = {

@@ -6,9 +6,11 @@ export interface Need {
   name: string;
   quantity?: string;
   category?: string;
-  status: "PENDING" | "PURCHASED"; // Assuming status enum based on typical logic
+  isPurchased: boolean;
   householdId: number;
-  createdById: number;
+  addedById: number;
+  purchasedAt?: string;
+  purchasedById?: number;
   createdAt: string;
   updatedAt: string;
 }

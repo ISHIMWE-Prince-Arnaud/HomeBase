@@ -1,11 +1,10 @@
 import { useChores } from "@/hooks/useChores";
 import { ChoreItem } from "./ChoreItem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
+import type { Chore } from "../api";
 
 export function ChoreList() {
   const { chores, isLoading, error } = useChores();
-  const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
 
   if (isLoading) {
     return (
@@ -32,23 +31,12 @@ export function ChoreList() {
     );
   }
 
-  const filteredChores = chores.filter((chore) => {
-    if (filter === "active") return !chore.isComplete;
-    if (filter === "completed") return chore.isComplete;
-    return true;
-  });
-
   const activeCount = chores.filter((c) => !c.isComplete).length;
   const completedCount = chores.filter((c) => c.isComplete).length;
 
   return (
     <div className="space-y-4">
-      <Tabs
-        defaultValue="all"
-        onValueChange={(val) =>
-          setFilter(val as "all" | "active" | "completed")
-        }
-        className="w-full">
+      <Tabs defaultValue="all" className="w-full">
         <div className="flex items-center justify-between mb-4">
           <TabsList>
             <TabsTrigger value="all">All ({chores.length})</TabsTrigger>
@@ -73,7 +61,7 @@ export function ChoreList() {
   );
 }
 
-function ChoreGrid({ chores }: { chores: typeof import("../api").Chore[] }) {
+function ChoreGrid({ chores }: { chores: Chore[] }) {
   if (chores.length === 0) {
     return (
       <div className="py-10 text-center text-muted-foreground border rounded-lg border-dashed">

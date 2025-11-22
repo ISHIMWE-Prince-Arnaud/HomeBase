@@ -74,3 +74,11 @@ export const useChores = () => {
     isDeleting: deleteChoreMutation.isPending,
   };
 };
+
+export const useChore = (id: number) => {
+  return useQuery({
+    queryKey: ["chores", id],
+    queryFn: () => choresApi.getOne(id),
+    enabled: !!id,
+  });
+};

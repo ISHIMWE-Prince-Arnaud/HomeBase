@@ -14,8 +14,7 @@ interface NeedItemProps {
 export function NeedItem({ need, onMarkPurchased }: NeedItemProps) {
   const { deleteNeed, isDeleting } = useNeeds();
 
-  // Assuming PENDING items are what we show. If PURCHASED items are shown, we might style them differently.
-  const isPurchased = need.status === "PURCHASED";
+  const isPurchased = need.isPurchased;
 
   return (
     <Card
