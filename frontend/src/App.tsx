@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "@/pages/Login";
 import RegisterPage from "@/pages/Register";
 import PublicLayout from "@/layouts/PublicLayout";
@@ -13,32 +13,30 @@ import NotificationsPage from "./pages/Notifications";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route element={<PublicLayout />}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-        </Route>
+    <Routes>
+      {/* Public Routes */}
+      <Route element={<PublicLayout />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Route>
 
-        {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route element={<AppLayout />}>
-            <Route path="/dashboard" element={<div>Dashboard Content</div>} />
-            <Route path="/chores" element={<ChoresPage />} />
-            <Route path="/needs" element={<NeedsPage />} />
-            <Route path="/expenses" element={<ExpensesPage />} />
-            <Route path="/payments" element={<PaymentsPage />} />
-            <Route path="/notifications" element={<NotificationsPage />} />
-            <Route path="/household" element={<HouseholdPage />} />
-            <Route path="/profile" element={<div>Profile Content</div>} />
-          </Route>
+      {/* Protected Routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/dashboard" element={<div>Dashboard Content</div>} />
+          <Route path="/chores" element={<ChoresPage />} />
+          <Route path="/needs" element={<NeedsPage />} />
+          <Route path="/expenses" element={<ExpensesPage />} />
+          <Route path="/payments" element={<PaymentsPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/household" element={<HouseholdPage />} />
+          <Route path="/profile" element={<div>Profile Content</div>} />
         </Route>
+      </Route>
 
-        {/* Default Redirect */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </BrowserRouter>
+      {/* Default Redirect */}
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   );
 }
 
