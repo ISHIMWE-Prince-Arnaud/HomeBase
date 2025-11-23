@@ -24,11 +24,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 export default function ProfilePage() {
-  const { user, updateProfile, isUpdatingProfile, logout } = useAuth();
+  const { user, updateProfile, isUpdatingProfile } = useAuth();
 
   const form = useForm<UpdateProfileInput>({
     resolver: zodResolver(updateProfileSchema),
@@ -153,24 +153,6 @@ export default function ProfilePage() {
                 </div>
               </form>
             </Form>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Account Actions</CardTitle>
-            <CardDescription>
-              Manage your session and account status.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button
-              variant="destructive"
-              className="w-full"
-              onClick={() => logout()}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Log Out
-            </Button>
           </CardContent>
         </Card>
       </div>
