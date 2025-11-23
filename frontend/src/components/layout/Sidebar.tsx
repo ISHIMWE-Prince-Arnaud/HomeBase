@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import LOGO from "../../../public/logo.png";
 
 type SidebarProps = React.HTMLAttributes<HTMLDivElement>;
 
@@ -54,6 +55,9 @@ export function Sidebar({ className }: SidebarProps) {
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <div className="mb-6 flex items-center px-4">
+            {LOGO && (
+              <img src={LOGO} alt="HomeBase Logo" className="h-7 w-7 mr-2 mb-1" />
+            )}
             <h2 className="text-2xl font-bold tracking-tight text-primary">
               HomeBase
             </h2>
@@ -116,7 +120,9 @@ export function Sidebar({ className }: SidebarProps) {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction className="bg-destructive text-white" onClick={() => logout()}>
+                  <AlertDialogAction
+                    className="bg-destructive text-white"
+                    onClick={() => logout()}>
                     Logout
                   </AlertDialogAction>
                 </AlertDialogFooter>
