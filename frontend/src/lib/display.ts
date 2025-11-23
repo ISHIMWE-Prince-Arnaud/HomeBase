@@ -11,7 +11,7 @@ export const getMemberById = (
 export const getDisplayName = (
   member: Pick<HouseholdMember, "name"> | undefined
 ): string => {
-  return member?.name || "Unknown";
+  return member?.name || "Former Member";
 };
 
 export const getAvatarUrl = (

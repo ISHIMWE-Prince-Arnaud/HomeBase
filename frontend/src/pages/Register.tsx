@@ -24,11 +24,14 @@ export default function RegisterPage() {
       name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
   const onSubmit = (data: RegisterInput) => {
-    register(data);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { confirmPassword, ...registerData } = data;
+    register(registerData);
   };
 
   return (
@@ -46,7 +49,9 @@ export default function RegisterPage() {
       <div className="flex w-full flex-col justify-center p-8 lg:w-1/2">
         <div className="mx-auto w-full max-w-md space-y-6">
           <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-primary">Create an account</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-primary">
+              Create an account
+            </h1>
             <p className="text-muted-foreground">
               Join HomeBase to manage your household effortlessly.
             </p>
@@ -56,7 +61,9 @@ export default function RegisterPage() {
             <CardHeader className="p-0" />
             <CardContent className="p-0">
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4">
                   <FormField
                     control={form.control}
                     name="name"
@@ -90,13 +97,37 @@ export default function RegisterPage() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
+                          <Input
+                            type="password"
+                            placeholder="••••••••"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full" disabled={isRegistering}>
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            placeholder="••••••••"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isRegistering}>
                     {isRegistering ? "Creating account..." : "Create Account"}
                   </Button>
                 </form>
@@ -106,7 +137,9 @@ export default function RegisterPage() {
 
           <div className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link to="/login" className="font-medium text-primary hover:underline">
+            <Link
+              to="/login"
+              className="font-medium text-primary hover:underline">
               Sign in
             </Link>
           </div>

@@ -44,4 +44,5 @@ export const updateProfileSchema = z
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type BackendRegisterInput = Omit<RegisterInput, "confirmPassword">;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

@@ -1,5 +1,9 @@
 import { api } from "@/api/client";
-import type { LoginInput, RegisterInput, UpdateProfileInput } from "./schema";
+import type {
+  LoginInput,
+  BackendRegisterInput,
+  UpdateProfileInput,
+} from "./schema";
 
 export interface User {
   id: number;
@@ -40,7 +44,7 @@ export const authApi = {
     return { user: toUser(backend.user) };
   },
 
-  register: async (data: RegisterInput): Promise<AuthResponse> => {
+  register: async (data: BackendRegisterInput): Promise<AuthResponse> => {
     const response = await api.post("/auth/register", data);
     const backend = response.data as { user: BackendUser };
     return { user: toUser(backend.user) };
