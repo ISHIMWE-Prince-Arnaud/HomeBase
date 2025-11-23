@@ -40,7 +40,7 @@ export default function DashboardPage() {
   const myPendingChores =
     chores?.filter((c) => !c.isComplete && c.assignedToId === user.id).length ||
     0;
-  const activeNeeds = needs?.length || 0;
+  const activeNeeds = needs?.filter((n) => !n.isPurchased).length || 0;
   const unreadNotifications =
     notifications?.filter((n) => !n.isRead).length || 0;
 
