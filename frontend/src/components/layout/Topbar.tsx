@@ -88,7 +88,7 @@ export function Topbar() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-white"
+              className="bg-destructive text-white hover:bg-destructive/50"
               onClick={() => logout()}>
               Logout
             </AlertDialogAction>

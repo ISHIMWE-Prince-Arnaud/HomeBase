@@ -131,7 +131,7 @@ export function BottomNav() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-white" onClick={() => logout()}>
+            <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/50" onClick={() => logout()}>
               Logout
             </AlertDialogAction>
           </AlertDialogFooter>

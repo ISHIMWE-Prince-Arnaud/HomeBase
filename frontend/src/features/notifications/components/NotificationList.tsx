@@ -3,6 +3,7 @@ import { NotificationItem } from "./NotificationItem";
 import { Button } from "@/components/ui/button";
 import { CheckCheck, Bell } from "lucide-react";
 import { NotificationListSkeleton } from "@/components/ui/skeletons";
+import { StaggerContainer, StaggerItem, FadeIn } from "@/components/ui/motion";
 
 export function NotificationList() {
   const { notifications, isLoading, markRead, markAllRead, isMarkingRead } =
@@ -14,11 +15,11 @@ export function NotificationList() {
 
   if (!notifications?.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
+      <FadeIn className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
         <Bell className="h-16 w-16 mb-4 opacity-20" />
         <p className="text-lg font-medium">No notifications</p>
         <p className="text-sm mt-1">You're all caught up!</p>
-      </div>
+      </FadeIn>
     );
   }
 
@@ -38,15 +39,16 @@ export function NotificationList() {
           </Button>
         </div>
       )}
-      <div className="space-y-2">
+      <StaggerContainer className="space-y-2">
         {notifications.map((notification) => (
-          <NotificationItem
-            key={notification.id}
-            notification={notification}
-            onMarkRead={markRead}
-          />
+          <StaggerItem key={notification.id}>
+            <NotificationItem
+              notification={notification}
+              onMarkRead={markRead}
+            />
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
     </div>
   );
 }

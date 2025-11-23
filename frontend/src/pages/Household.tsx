@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { FadeIn, SlideIn } from "@/components/ui/motion";
 
 export default function HouseholdPage() {
   const { household, isLoading } = useHousehold();
@@ -24,14 +25,14 @@ export default function HouseholdPage() {
   if (household) {
     return (
       <div className="space-y-6">
-        <div>
+        <FadeIn>
           <h1 className="text-3xl font-bold tracking-tight text-primary">
             My Household
           </h1>
           <p className="text-muted-foreground">
             Manage your household settings and members.
           </p>
-        </div>
+        </FadeIn>
         <HouseholdInfo />
       </div>
     );
@@ -39,28 +40,30 @@ export default function HouseholdPage() {
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-8">
-      <div className="text-center">
+      <FadeIn className="text-center">
         <h1 className="text-3xl font-bold tracking-tight text-primary">
           Welcome to HomeBase
         </h1>
         <p className="mt-2 text-muted-foreground">
           To get started, create a new household or join an existing one.
         </p>
-      </div>
+      </FadeIn>
 
       <div className="grid w-full max-w-md gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>New Household</CardTitle>
-            <CardDescription>
-              Create a fresh space for your home. You'll get an invite code to
-              share.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <CreateHouseholdDialog />
-          </CardContent>
-        </Card>
+        <SlideIn direction="left" delay={0.2}>
+          <Card>
+            <CardHeader>
+              <CardTitle>New Household</CardTitle>
+              <CardDescription>
+                Create a fresh space for your home. You'll get an invite code to
+                share.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CreateHouseholdDialog />
+            </CardContent>
+          </Card>
+        </SlideIn>
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -71,17 +74,19 @@ export default function HouseholdPage() {
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Join Household</CardTitle>
-            <CardDescription>
-              Have an invite code? Enter it here to join your household.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <JoinHouseholdDialog />
-          </CardContent>
-        </Card>
+        <SlideIn direction="right" delay={0.3}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Join Household</CardTitle>
+              <CardDescription>
+                Have an invite code? Enter it here to join your household.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <JoinHouseholdDialog />
+            </CardContent>
+          </Card>
+        </SlideIn>
       </div>
     </div>
   );

@@ -21,6 +21,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import toast from "react-hot-toast";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/motion";
 
 export function HouseholdInfo() {
   const { household, leaveHousehold, isLeaving } = useHousehold();
@@ -33,7 +34,7 @@ export function HouseholdInfo() {
   };
 
   return (
-    <div className="space-y-6">
+    <FadeIn className="space-y-6">
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -98,36 +99,39 @@ export function HouseholdInfo() {
               <Users className="mr-2 h-4 w-4" />
               Members ({household.members.length})
             </h3>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <StaggerContainer className="grid gap-3 sm:grid-cols-2">
               {household.members.map((member) => (
-                <div
-                  key={member.id}
-                  className="flex items-center space-x-3 rounded-lg border p-3 hover:bg-muted/20 transition-colors">
-                  <Avatar className="h-10 w-10 border">
-                    <AvatarImage src={member.profileImage} alt={member.name} />
-                    <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                      {member.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .toUpperCase()
-                        .slice(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium leading-none truncate">
-                      {member.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate mt-1">
-                      {member.email}
-                    </p>
+                <StaggerItem key={member.id}>
+                  <div className="flex items-center space-x-3 rounded-lg border p-3 hover:bg-muted/20 transition-colors">
+                    <Avatar className="h-10 w-10 border">
+                      <AvatarImage
+                        src={member.profileImage}
+                        alt={member.name}
+                      />
+                      <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                        {member.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase()
+                          .slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium leading-none truncate">
+                        {member.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate mt-1">
+                        {member.email}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerContainer>
           </div>
         </CardContent>
       </Card>
-    </div>
+    </FadeIn>
   );
 }
