@@ -7,15 +7,8 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  CheckCircle,
-  Trash2,
-  Calendar,
-  User as UserIcon,
-  Pencil,
-} from "lucide-react";
+import { CheckCircle, Trash2, Calendar, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -116,27 +109,19 @@ export function ChoreItem({ chore }: { chore: Chore }) {
         <CardFooter className="p-3 bg-muted/20 flex flex-col gap-3">
           {/* Assignee Section - Full Width */}
           <div className="w-full flex items-center gap-2 pb-3 border-b border-border/50">
-            {chore.assignedTo ? (
+            {!chore.assignedTo ? (
               <>
-                <Avatar className="h-6 w-6 border border-background shadow-sm">
-                  <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
-                    {chore.assignedTo.name.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-xs text-muted-foreground">
-                  Assigned to{" "}
-                  <span className="font-medium text-foreground">
-                    {chore.assignedTo.name}
-                  </span>
+                <span className="text-xs text-muted-foreground italic">
+                  Unassigned
                 </span>
               </>
             ) : (
               <>
-                <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center border border-background">
-                  <UserIcon className="h-3 w-3 text-muted-foreground" />
-                </div>
-                <span className="text-xs text-muted-foreground italic">
-                  Unassigned
+                <span className="text-xs text-muted-foreground">
+                  Assigned to:
+                </span>
+                <span className="text-sm font-medium">
+                  {chore.assignedTo.name || chore.assignedTo.email}
                 </span>
               </>
             )}
