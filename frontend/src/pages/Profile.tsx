@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -149,9 +148,9 @@ export default function ProfilePage() {
                       )}
                     />
                   </div>
-                  <FormDescription className="text-xs">
+                  <p className="text-xs text-muted-foreground">
                     Leave blank if you don't want to change your password.
-                  </FormDescription>
+                  </p>
                 </div>
 
                 <div className="flex justify-end">
