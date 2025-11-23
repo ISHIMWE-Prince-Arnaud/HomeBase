@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import toast from "react-hot-toast";
 
 export function HouseholdInfo() {
   const { household, leaveHousehold, isLeaving } = useHousehold();
@@ -22,6 +23,7 @@ export function HouseholdInfo() {
 
   const copyInviteCode = () => {
     navigator.clipboard.writeText(household.inviteCode);
+    toast.success("Invite code copied to clipboard");
   };
 
   return (
