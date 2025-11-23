@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import LOGO from "../../../public/logo.png";
+import LOGO from "../../../public/logo.svg";
 
 type SidebarProps = React.HTMLAttributes<HTMLDivElement>;
 

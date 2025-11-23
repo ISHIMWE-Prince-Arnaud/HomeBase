@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { loginSchema,type LoginInput } from "@/features/auth/schema";
+import { loginSchema, type LoginInput } from "@/features/auth/schema";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,9 +14,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import loginPicture from "@/assets/login.png";
 
 export default function LoginPage() {
   const { login, isLoggingIn } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -31,31 +35,36 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen w-full bg-background">
       {/* Left Side - Image */}
       <div className="hidden w-1/2 bg-muted lg:block">
         <img
-          src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=2000&auto=format&fit=crop"
-          alt="Cozy Home"
+          src={loginPicture}
+          alt="Login Illustration"
           className="h-full w-full object-cover"
         />
       </div>
 
       {/* Right Side - Form */}
       <div className="flex w-full flex-col justify-center p-8 lg:w-1/2">
-        <div className="mx-auto w-full max-w-md space-y-6">
-          <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-primary">Welcome back</h1>
-            <p className="text-muted-foreground">
+        <div className="mx-auto w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="space-y-2 text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-primary">
+              Welcome back
+            </h1>
+            <p className="text-muted-foreground text-sm">
               Enter your credentials to access your household.
             </p>
           </div>
 
-          <Card className="border-none shadow-none">
-            <CardHeader className="p-0" />
-            <CardContent className="p-0">
+          <Card className="border shadow-lg rounded-xl">
+            <CardHeader />
+            <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-5">
+                  {/* Email */}
                   <FormField
                     control={form.control}
                     name="email"
@@ -69,20 +78,43 @@ export default function LoginPage() {
                       </FormItem>
                     )}
                   />
+
+                  {/* Password */}
                   <FormField
                     control={form.control}
                     name="password"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
-                        </FormControl>
+                        <div className="relative">
+                          <FormControl>
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="••••••••"
+                              {...field}
+                            />
+                          </FormControl>
+
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground">
+                            {showPassword ? (
+                              <EyeOff size={18} />
+                            ) : (
+                              <Eye size={18} />
+                            )}
+                          </button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full" disabled={isLoggingIn}>
+
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoggingIn}>
                     {isLoggingIn ? "Signing in..." : "Sign In"}
                   </Button>
                 </form>
@@ -90,12 +122,14 @@ export default function LoginPage() {
             </CardContent>
           </Card>
 
-          <div className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
-            <Link to="/register" className="font-medium text-primary hover:underline">
+            <Link
+              to="/register"
+              className="font-medium text-primary hover:underline">
               Create one
             </Link>
-          </div>
+          </p>
         </div>
       </div>
     </div>

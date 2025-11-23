@@ -14,9 +14,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import signup from "@/assets/signup.png";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function RegisterPage() {
   const { register, isRegistering } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
@@ -29,41 +33,40 @@ export default function RegisterPage() {
   });
 
   const onSubmit = (data: RegisterInput) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { confirmPassword, ...registerData } = data;
     register(registerData);
   };
 
   return (
-    <div className="flex min-h-screen w-full">
-      {/* Left Side - Image */}
+    <div className="flex max-h-screen w-full bg-background">
+      {/* Left Side */}
       <div className="hidden w-1/2 bg-muted lg:block">
         <img
-          src="https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=2000&auto=format&fit=crop"
-          alt="Modern Living Room"
+          src={signup}
+          alt="Signup Illustration"
           className="h-full w-full object-cover"
         />
       </div>
 
-      {/* Right Side - Form */}
+      {/* Right Side */}
       <div className="flex w-full flex-col justify-center p-8 lg:w-1/2">
-        <div className="mx-auto w-full max-w-md space-y-6">
-          <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-primary">
+        <div className="mx-auto w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="space-y-2 text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-primary">
               Create an account
             </h1>
-            <p className="text-muted-foreground">
-              Join HomeBase to manage your household effortlessly.
+            <p className="text-muted-foreground text-sm">
+              Join HomeBase and manage your household effortlessly.
             </p>
           </div>
 
-          <Card className="border-none shadow-none">
-            <CardHeader className="p-0" />
-            <CardContent className="p-0">
+          <Card className="border shadow-lg rounded-xl">
+            <CardHeader />
+            <CardContent>
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-4">
+                  className="space-y-5">
                   <FormField
                     control={form.control}
                     name="name"
@@ -77,6 +80,7 @@ export default function RegisterPage() {
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="email"
@@ -90,23 +94,39 @@ export default function RegisterPage() {
                       </FormItem>
                     )}
                   />
+
+                  {/* Password */}
                   <FormField
                     control={form.control}
                     name="password"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="••••••••"
-                            {...field}
-                          />
-                        </FormControl>
+                        <div className="relative">
+                          <FormControl>
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="••••••••"
+                              {...field}
+                            />
+                          </FormControl>
+                          <button
+                            type="button"
+                            className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+                            onClick={() => setShowPassword(!showPassword)}>
+                            {showPassword ? (
+                              <EyeOff size={18} />
+                            ) : (
+                              <Eye size={18} />
+                            )}
+                          </button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
+                  {/* Confirm Password */}
                   <FormField
                     control={form.control}
                     name="confirmPassword"
@@ -115,7 +135,7 @@ export default function RegisterPage() {
                         <FormLabel>Confirm Password</FormLabel>
                         <FormControl>
                           <Input
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             placeholder="••••••••"
                             {...field}
                           />
@@ -124,6 +144,7 @@ export default function RegisterPage() {
                       </FormItem>
                     )}
                   />
+
                   <Button
                     type="submit"
                     className="w-full"
@@ -135,14 +156,14 @@ export default function RegisterPage() {
             </CardContent>
           </Card>
 
-          <div className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link
               to="/login"
               className="font-medium text-primary hover:underline">
               Sign in
             </Link>
-          </div>
+          </p>
         </div>
       </div>
     </div>
