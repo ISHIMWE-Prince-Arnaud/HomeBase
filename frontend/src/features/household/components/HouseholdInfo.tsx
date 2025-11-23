@@ -49,7 +49,7 @@ export function HouseholdInfo() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => leaveHousehold()}>
+                  <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" onClick={() => leaveHousehold()}>
                     {isLeaving ? "Leaving..." : "Leave"}
                   </AlertDialogAction>
                 </AlertDialogFooter>
