@@ -33,6 +33,12 @@ export function ChoreList() {
   const activeCount = chores.filter((c) => !c.isComplete).length;
   const completedCount = chores.filter((c) => c.isComplete).length;
 
+  // Sort chores: incomplete first, then completed
+  const sortedChores = [...chores].sort((a, b) => {
+    if (a.isComplete === b.isComplete) return 0;
+    return a.isComplete ? 1 : -1;
+  });
+
   return (
     <div className="space-y-4">
       <Tabs defaultValue="all" className="w-full">
@@ -47,7 +53,7 @@ export function ChoreList() {
         </div>
 
         <TabsContent value="all" className="mt-0">
-          <ChoreGrid chores={chores} />
+          <ChoreGrid chores={sortedChores} />
         </TabsContent>
         <TabsContent value="active" className="mt-0">
           <ChoreGrid chores={chores.filter((c) => !c.isComplete)} />
