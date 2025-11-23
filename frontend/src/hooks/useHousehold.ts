@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { householdApi } from "@/features/household/api";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "@/lib/toast";
+import axios, { type AxiosError } from "axios";
 
 export const useHousehold = () => {
   const queryClient = useQueryClient();
@@ -58,10 +59,18 @@ export const useHousehold = () => {
         "Left household",
         "You have successfully left the household."
       );
-      navigate("/dashboard");
+      navigate("/household");
     },
-    onError: () => {
-      showToast.error("Failed to leave household", "Please try again.");
+    onError: (error: unknown) => {
+      let message = "Please try again.";
+      if (axios.isAxiosError(error)) {
+        const respData = (error as AxiosError<{ message?: string }>).response
+          ?.data;
+        if (respData?.message) {
+          message = respData.message;
+        }
+      }
+      showToast.error("Failed to leave household", message);
     },
   });
 

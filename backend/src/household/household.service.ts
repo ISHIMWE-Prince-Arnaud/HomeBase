@@ -231,10 +231,48 @@ export class HouseholdService {
       const householdId = user.householdId;
       householdIdForSync = householdId;
 
+      // Prevent leaving if the user has outstanding balance (net != 0)
+      // net = (paid - owes) + paymentsFrom - paymentsTo
+      const paidAgg = await tx.expense.aggregate({
+        where: { householdId, paidById: userId },
+        _sum: { totalAmount: true },
+      });
+      const owesAgg = await tx.expenseParticipant.aggregate({
+        where: { userId, expense: { householdId } },
+        _sum: { shareAmount: true },
+      });
+      const paymentsFromAgg = await tx.payment.aggregate({
+        where: { householdId, fromUserId: userId },
+        _sum: { amount: true },
+      });
+      const paymentsToAgg = await tx.payment.aggregate({
+        where: { householdId, toUserId: userId },
+        _sum: { amount: true },
+      });
+
+      const paidSum = paidAgg._sum.totalAmount || 0;
+      const owesSum = owesAgg._sum.shareAmount || 0;
+      const paymentsFrom = paymentsFromAgg._sum.amount || 0;
+      const paymentsTo = paymentsToAgg._sum.amount || 0;
+      const net = Number(
+        (paidSum - owesSum + paymentsFrom - paymentsTo).toFixed(2),
+      );
+      if (Math.abs(net) > 0.01) {
+        throw new BadRequestException(
+          'You must settle your balance before leaving the household.',
+        );
+      }
+
       // Remove the user from the household
       await tx.user.update({
         where: { id: userId },
         data: { householdId: null },
+      });
+
+      // Auto-unassign chores assigned to this user within the household
+      await tx.chore.updateMany({
+        where: { householdId, assignedToId: userId },
+        data: { assignedToId: null },
       });
 
       // Check if any members remain
