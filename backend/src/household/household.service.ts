@@ -73,7 +73,9 @@ export class HouseholdService {
         },
       },
       include: {
-        users: { select: { id: true, email: true, name: true } },
+        users: {
+          select: { id: true, email: true, name: true, profileImage: true },
+        },
       },
     });
     // notify/sync membership
@@ -103,7 +105,11 @@ export class HouseholdService {
     const result = await this.prisma.$transaction(async (tx) => {
       const household = await tx.household.findUnique({
         where: { inviteCode: dto.inviteCode },
-        include: { users: { select: { id: true, email: true, name: true } } },
+        include: {
+          users: {
+            select: { id: true, email: true, name: true, profileImage: true },
+          },
+        },
       });
 
       if (!household) throw new NotFoundException('Invalid invite code.');
@@ -132,7 +138,11 @@ export class HouseholdService {
 
       const updated = await tx.household.findUnique({
         where: { id: household.id },
-        include: { users: { select: { id: true, email: true, name: true } } },
+        include: {
+          users: {
+            select: { id: true, email: true, name: true, profileImage: true },
+          },
+        },
       });
 
       return updated;
@@ -173,7 +183,8 @@ export class HouseholdService {
           select: {
             id: true,
             email: true,
-            // include other public user fields you want to expose
+            name: true,
+            profileImage: true,
           },
         },
       },

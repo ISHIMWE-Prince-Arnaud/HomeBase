@@ -12,15 +12,38 @@ export interface AuthResponse {
   user: User;
 }
 
+interface BackendUser {
+  id: number;
+  email: string;
+  name?: string;
+  displayName?: string;
+  profileImage?: string;
+  avatarUrl?: string;
+  imageUrl?: string;
+  image?: string;
+}
+
+const toUser = (raw: BackendUser): User => ({
+  id: raw.id,
+  email: raw.email,
+  name:
+    raw.name ||
+    raw.displayName ||
+    (raw.email ? raw.email.split("@")[0] : "User"),
+  profileImage: raw.profileImage || raw.avatarUrl || raw.imageUrl || raw.image,
+});
+
 export const authApi = {
   login: async (data: LoginInput): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>("/auth/login", data);
-    return response.data;
+    const response = await api.post("/auth/login", data);
+    const backend = response.data as { user: BackendUser };
+    return { user: toUser(backend.user) };
   },
 
   register: async (data: RegisterInput): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>("/auth/register", data);
-    return response.data;
+    const response = await api.post("/auth/register", data);
+    const backend = response.data as { user: BackendUser };
+    return { user: toUser(backend.user) };
   },
 
   logout: async (): Promise<void> => {
@@ -28,12 +51,14 @@ export const authApi = {
   },
 
   updateProfile: async (data: UpdateProfileInput): Promise<User> => {
-    const response = await api.patch<User>("/auth/users/me", data);
-    return response.data;
+    const response = await api.patch("/auth/users/me", data);
+    const backend = response.data as BackendUser;
+    return toUser(backend);
   },
 
   getProfile: async (): Promise<User> => {
-    const response = await api.get<User>("/auth/users/me");
-    return response.data;
+    const response = await api.get("/auth/users/me");
+    const backend = response.data as BackendUser;
+    return toUser(backend);
   },
 };

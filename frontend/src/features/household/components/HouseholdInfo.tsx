@@ -1,7 +1,7 @@
 import { useHousehold } from "@/hooks/useHousehold";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Copy, LogOut, Users } from "lucide-react";
 import {
   AlertDialog,
@@ -44,12 +44,14 @@ export function HouseholdInfo() {
                   <AlertDialogTitle>Leave Household?</AlertDialogTitle>
                   <AlertDialogDescription>
                     Are you sure you want to leave this household? You will lose
-                    access to all shared data.
+                    access to all household data.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" onClick={() => leaveHousehold()}>
+                  <AlertDialogAction
+                    className="bg-destructive text-white hover:bg-destructive/90"
+                    onClick={() => leaveHousehold()}>
                     {isLeaving ? "Leaving..." : "Leave"}
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -84,6 +86,7 @@ export function HouseholdInfo() {
               {household.members.map((member) => (
                 <div key={member.id} className="flex items-center space-x-4">
                   <Avatar>
+                    <AvatarImage src={member.profileImage} alt={member.name} />
                     <AvatarFallback>{member.name[0]}</AvatarFallback>
                   </Avatar>
                   <div>

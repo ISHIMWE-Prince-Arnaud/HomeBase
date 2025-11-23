@@ -57,7 +57,7 @@ export function ExpenseBalance() {
                   </div>
                   <div>
                     <p className="font-medium">
-                      {item.name || getMemberName(item.userId)}
+                      {getMemberName(item.userId) || item.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {item.email || "Member"}
@@ -94,12 +94,12 @@ export function ExpenseBalance() {
                   className="flex items-center justify-between rounded-lg border p-3">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">
-                      {settlement.fromName ||
-                        getMemberName(settlement.fromUserId)}
+                      {getMemberName(settlement.fromUserId) ||
+                        settlement.fromName}
                     </span>
                     <ArrowRight className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium">
-                      {settlement.toName || getMemberName(settlement.toUserId)}
+                      {getMemberName(settlement.toUserId) || settlement.toName}
                     </span>
                   </div>
                   <span className="font-bold text-primary">

@@ -82,9 +82,12 @@ export function MySettlements() {
                     <div>
                       <p className="font-medium">
                         Pay{" "}
-                        {settlement.toName || getMemberName(settlement.toUserId)}
+                        {getMemberName(settlement.toUserId) ||
+                          settlement.toName}
                       </p>
-                      <p className="text-sm text-muted-foreground">Settlement</p>
+                      <p className="text-sm text-muted-foreground">
+                        Settlement
+                      </p>
                     </div>
                   </div>
                   <p className="font-bold text-red-600">
@@ -118,11 +121,13 @@ export function MySettlements() {
                     </div>
                     <div>
                       <p className="font-medium">
-                        {settlement.fromName ||
-                          getMemberName(settlement.fromUserId)}{" "}
+                        {getMemberName(settlement.fromUserId) ||
+                          settlement.fromName}{" "}
                         pays you
                       </p>
-                      <p className="text-sm text-muted-foreground">Settlement</p>
+                      <p className="text-sm text-muted-foreground">
+                        Settlement
+                      </p>
                     </div>
                   </div>
                   <p className="font-bold text-green-600">

@@ -1,5 +1,6 @@
 import { usePayments } from "@/hooks/usePayments";
 import { useHousehold } from "@/hooks/useHousehold";
+import { getDisplayName, getMemberById } from "@/lib/display";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Banknote } from "lucide-react";
 
@@ -23,10 +24,8 @@ export function PaymentList() {
     );
   }
 
-  const getMemberName = (id: number) => {
-    const member = household?.members.find((m) => m.id === id);
-    return member ? member.name : "Unknown";
-  };
+  const getMemberName = (id: number) =>
+    getDisplayName(getMemberById(household, id));
 
   return (
     <div className="space-y-4">

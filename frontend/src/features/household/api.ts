@@ -25,7 +25,11 @@ interface BackendUser {
   id: number;
   email: string;
   name?: string;
+  displayName?: string;
   profileImage?: string;
+  avatarUrl?: string;
+  imageUrl?: string;
+  image?: string;
 }
 
 interface BackendHousehold {
@@ -43,8 +47,9 @@ const toHousehold = (raw: BackendHousehold): Household => {
   const members: HouseholdMember[] = (raw.users || []).map((u) => ({
     id: u.id,
     email: u.email,
-    name: u.name ?? (u.email ? u.email.split("@")[0] : "Member"),
-    profileImage: u.profileImage,
+    name:
+      u.name || u.displayName || (u.email ? u.email.split("@")[0] : "Member"),
+    profileImage: u.profileImage || u.avatarUrl || u.imageUrl || u.image,
   }));
   return {
     id: raw.id,
