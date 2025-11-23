@@ -245,7 +245,7 @@ export default function DashboardPage() {
 
           <CardContent className="flex-1 flex flex-col gap-4">
             <div className="space-y-4">
-              {household.members.slice(0, 4).map((member) => (
+              {household.members.slice(0, 3).map((member) => (
                 <div
                   key={member.id}
                   className="flex items-center justify-between group">
@@ -271,9 +271,9 @@ export default function DashboardPage() {
                 </div>
               ))}
 
-              {household.members.length > 4 && (
+              {household.members.length > 2 && (
                 <p className="text-xs text-muted-foreground text-center pt-2">
-                  +{household.members.length - 4} more members
+                  +{household.members.length - 2} more members
                 </p>
               )}
             </div>

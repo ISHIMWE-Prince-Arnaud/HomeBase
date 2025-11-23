@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { NeedListSkeleton } from "@/components/ui/skeletons";
+import { StaggerContainer, StaggerItem } from "@/components/ui/motion";
 
 export function NeedList() {
   const { needs, isLoading, error } = useNeeds();
@@ -43,15 +44,36 @@ export function NeedList() {
 
   const pendingNeeds = filteredNeeds.filter((n) => !n.isPurchased);
   const purchasedNeeds = filteredNeeds.filter((n) => n.isPurchased);
-
   const combinedNeeds = [...pendingNeeds, ...purchasedNeeds];
-  const currentList =
-    tab === "pending"
-      ? pendingNeeds
-      : tab === "purchased"
-      ? purchasedNeeds
-      : combinedNeeds;
-  const hasNoResults = currentList.length === 0 && searchQuery;
+
+  const renderList = (items: Need[], emptyMessage: string) => {
+    if (items.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
+          <p>
+            {searchQuery
+              ? `No items found matching "${searchQuery}"`
+              : emptyMessage}
+          </p>
+          <p className="text-sm">
+            {searchQuery
+              ? "Try a different search term."
+              : "Add items to your shopping list."}
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <StaggerContainer className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((need) => (
+          <StaggerItem key={need.id}>
+            <NeedItem need={need} onMarkPurchased={handleMarkPurchased} />
+          </StaggerItem>
+        ))}
+      </StaggerContainer>
+    );
+  };
 
   return (
     <>
@@ -82,77 +104,15 @@ export function NeedList() {
           </TabsList>
 
           <TabsContent value="pending" className="mt-4">
-            {hasNoResults ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
-                <p>No items found matching "{searchQuery}"</p>
-                <p className="text-sm">Try a different search term.</p>
-              </div>
-            ) : pendingNeeds.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
-                <p className="text-lg font-medium">All caught up!</p>
-                <p className="text-sm">Add items to your shopping list.</p>
-              </div>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {pendingNeeds.map((need) => (
-                  <NeedItem
-                    key={need.id}
-                    need={need}
-                    onMarkPurchased={handleMarkPurchased}
-                  />
-                ))}
-              </div>
-            )}
+            {renderList(pendingNeeds, "All caught up!")}
           </TabsContent>
 
           <TabsContent value="purchased" className="mt-4">
-            {hasNoResults ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
-                <p>No purchased items found matching "{searchQuery}"</p>
-                <p className="text-sm">Try a different search term.</p>
-              </div>
-            ) : purchasedNeeds.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
-                <p className="text-lg font-medium">No purchased items yet</p>
-                <p className="text-sm">
-                  Items you mark as purchased will appear here.
-                </p>
-              </div>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {purchasedNeeds.map((need) => (
-                  <NeedItem
-                    key={need.id}
-                    need={need}
-                    onMarkPurchased={handleMarkPurchased}
-                  />
-                ))}
-              </div>
-            )}
+            {renderList(purchasedNeeds, "No purchased items yet")}
           </TabsContent>
 
           <TabsContent value="all" className="mt-4">
-            {hasNoResults ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
-                <p>No items found matching "{searchQuery}"</p>
-                <p className="text-sm">Try a different search term.</p>
-              </div>
-            ) : combinedNeeds.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
-                <p className="text-lg font-medium">No items yet</p>
-                <p className="text-sm">Add items to your shopping list.</p>
-              </div>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {combinedNeeds.map((need) => (
-                  <NeedItem
-                    key={need.id}
-                    need={need}
-                    onMarkPurchased={handleMarkPurchased}
-                  />
-                ))}
-              </div>
-            )}
+            {renderList(combinedNeeds, "No items yet")}
           </TabsContent>
         </Tabs>
       </div>

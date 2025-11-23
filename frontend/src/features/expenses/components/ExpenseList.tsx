@@ -3,6 +3,7 @@ import { useHousehold } from "@/hooks/useHousehold";
 import { Card } from "@/components/ui/card";
 import { Receipt } from "lucide-react";
 import { ExpenseListSkeleton } from "@/components/ui/skeletons";
+import { StaggerContainer, StaggerItem } from "@/components/ui/motion";
 
 export function ExpenseList() {
   const { expenses, isLoading } = useExpenses();
@@ -36,87 +37,87 @@ export function ExpenseList() {
   };
 
   return (
-    <div className="space-y-4">
+    <StaggerContainer className="space-y-4">
       {expenses.map((expense) => {
         const participantCount = expense.participants?.length || 0;
         const shareAmount =
           participantCount > 0 ? expense.totalAmount / participantCount : 0;
 
         return (
-          <Card
-            key={expense.id}
-            className="flex flex-col gap-3 p-4 hover:shadow-md transition-shadow border-l-4 border-l-primary/20">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-3 flex-1 min-w-0">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
-                  <Receipt className="h-5 w-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-base leading-tight truncate">
-                    {expense.description}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-xs text-muted-foreground">
-                    <span className="font-medium text-foreground/80">
-                      {getMemberName(expense.paidById) ||
-                        expense.paidBy?.name ||
-                        expense.paidBy?.email}
-                    </span>
-                    <span>paid</span>
-                    {expense.date && (
-                      <>
-                        <span className="text-muted-foreground/40">•</span>
-                        <span>
-                          {new Date(expense.date).toLocaleDateString(
-                            undefined,
-                            {
-                              month: "short",
-                              day: "numeric",
-                            }
-                          )}
-                        </span>
-                      </>
-                    )}
+          <StaggerItem key={expense.id}>
+            <Card className="flex flex-col gap-3 p-4 hover:shadow-md transition-shadow border-l-4 border-l-primary/20">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+                    <Receipt className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-base leading-tight truncate">
+                      {expense.description}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground/80">
+                        {getMemberName(expense.paidById) ||
+                          expense.paidBy?.name ||
+                          expense.paidBy?.email}
+                      </span>
+                      <span>paid</span>
+                      {expense.date && (
+                        <>
+                          <span className="text-muted-foreground/40">•</span>
+                          <span>
+                            {new Date(expense.date).toLocaleDateString(
+                              undefined,
+                              {
+                                month: "short",
+                                day: "numeric",
+                              }
+                            )}
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="font-bold text-base text-primary">
-                  {formatCurrency(expense.totalAmount)}
-                </p>
-                {participantCount > 1 && (
-                  <p className="text-[10px] text-muted-foreground mt-0.5">
-                    {formatCurrency(shareAmount)} / person
+                <div className="text-right shrink-0">
+                  <p className="font-bold text-base text-primary">
+                    {formatCurrency(expense.totalAmount)}
                   </p>
-                )}
-              </div>
-            </div>
-
-            {expense.participants && expense.participants.length > 0 && (
-              <div className="bg-muted/30 rounded-md p-2 mt-1">
-                <div className="flex flex-wrap gap-1.5">
-                  {expense.participants.map((participant) => (
-                    <div
-                      key={participant.id}
-                      className="flex items-center gap-1.5 rounded-full bg-background border px-2 py-0.5 shadow-sm"
-                      title={`${getMemberName(
-                        participant.userId
-                      )} owes ${formatCurrency(participant.shareAmount)}`}>
-                      <span className="text-[10px] font-medium">
-                        {getMemberName(participant.userId)?.split(" ")[0] ||
-                          participant.user?.name?.split(" ")[0] ||
-                          "User"}
-                      </span>
-                    </div>
-                  ))}
-                  <span className="text-[10px] text-muted-foreground flex items-center px-1">
-                    split by {participantCount}
-                  </span>
+                  {participantCount > 1 && (
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      {formatCurrency(shareAmount)} / person
+                    </p>
+                  )}
                 </div>
               </div>
-            )}
-          </Card>
+
+              {expense.participants && expense.participants.length > 0 && (
+                <div className="bg-muted/30 rounded-md p-2 mt-1">
+                  <div className="flex flex-wrap gap-1.5">
+                    {expense.participants.map((participant) => (
+                      <div
+                        key={participant.id}
+                        className="flex items-center gap-1.5 rounded-full bg-background border px-2 py-0.5 shadow-sm"
+                        title={`${getMemberName(
+                          participant.userId
+                        )} owes ${formatCurrency(participant.shareAmount)}`}>
+                        <span className="text-[10px] font-medium">
+                          {getMemberName(participant.userId)?.split(" ")[0] ||
+                            participant.user?.name?.split(" ")[0] ||
+                            "User"}
+                        </span>
+                      </div>
+                    ))}
+                    <span className="text-[10px] text-muted-foreground flex items-center px-1">
+                      split by {participantCount}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </Card>
+          </StaggerItem>
         );
       })}
-    </div>
+    </StaggerContainer>
   );
 }
