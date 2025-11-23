@@ -75,7 +75,7 @@ export default function HouseholdPage() {
           <CardHeader>
             <CardTitle>Join Household</CardTitle>
             <CardDescription>
-              Have an invite code? Enter it here to join your roommates.
+              Have an invite code? Enter it here to join your household.
             </CardDescription>
           </CardHeader>
           <CardContent>
