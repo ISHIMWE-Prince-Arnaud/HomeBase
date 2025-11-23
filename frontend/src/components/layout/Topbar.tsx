@@ -21,6 +21,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function Topbar() {
   const { user, logout } = useAuth();
@@ -36,6 +37,8 @@ export function Topbar() {
             title="Connected to household in realtime">
             <div className="h-2 w-2 rounded-full bg-green-500" />
           </div>
+
+          <ThemeToggle />
 
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
@@ -79,7 +82,9 @@ export function Topbar() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-white" onClick={() => logout()}>
+            <AlertDialogAction
+              className="bg-destructive text-white"
+              onClick={() => logout()}>
               Logout
             </AlertDialogAction>
           </AlertDialogFooter>
