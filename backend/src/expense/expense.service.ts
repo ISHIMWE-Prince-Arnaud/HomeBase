@@ -116,7 +116,16 @@ export class ExpenseService {
       where: { householdId },
       orderBy: { id: 'desc' },
       include: {
-        participants: true,
+        participants: {
+          include: {
+            user: {
+              select: { id: true, name: true, email: true, profileImage: true },
+            },
+          },
+        },
+        paidBy: {
+          select: { id: true, name: true, email: true, profileImage: true },
+        },
       },
     });
   }
@@ -257,11 +266,17 @@ export class ExpenseService {
     for (const payment of payments) {
       // Payer: reduce their "owes" → increase net
       const payerPrev = netMap.get(payment.fromUserId) || 0;
-      netMap.set(payment.fromUserId, payerPrev + Math.round(payment.amount * SCALE));
+      netMap.set(
+        payment.fromUserId,
+        payerPrev + Math.round(payment.amount * SCALE),
+      );
 
       // Receiver: reduce their "paid" → decrease net
       const receiverPrev = netMap.get(payment.toUserId) || 0;
-      netMap.set(payment.toUserId, receiverPrev - Math.round(payment.amount * SCALE));
+      netMap.set(
+        payment.toUserId,
+        receiverPrev - Math.round(payment.amount * SCALE),
+      );
     }
 
     // Split into creditors and debtors

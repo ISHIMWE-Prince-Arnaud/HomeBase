@@ -28,8 +28,7 @@ export function MySettlements() {
   }
 
   const getMemberName = (id: number) => {
-    const member = household?.members.find((m) => m.id === id);
-    return member ? member.name : "Unknown";
+    return household?.members.find((m) => m.id === id)?.name;
   };
 
   const formatCurrency = (amount: number) => {

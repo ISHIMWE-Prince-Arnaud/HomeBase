@@ -9,6 +9,8 @@ export interface Payment {
   householdId: number;
   createdAt: string;
   updatedAt: string;
+  fromUser?: { id: number; name: string; email: string };
+  toUser?: { id: number; name: string; email: string };
 }
 
 export const paymentsApi = {

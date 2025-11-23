@@ -16,8 +16,7 @@ export function ExpenseBalance() {
   }
 
   const getMemberName = (id: number) => {
-    const member = household?.members.find((m) => m.id === Number(id));
-    return member ? member.name : "Unknown";
+    return household?.members.find((m) => m.id === Number(id))?.name;
   };
 
   const formatCurrency = (amount: number) => {

@@ -1,6 +1,13 @@
 import { api } from "@/api/client";
 import type { CreateExpenseInput } from "./schema";
 
+export interface ExpenseParticipantUser {
+  id: number;
+  name: string;
+  email: string;
+  profileImage?: string;
+}
+
 export interface ExpenseParticipant {
   id: number;
   expenseId: number;
@@ -8,6 +15,14 @@ export interface ExpenseParticipant {
   shareAmount: number;
   createdAt: string;
   updatedAt: string;
+  user?: ExpenseParticipantUser;
+}
+
+export interface ExpensePaidByUser {
+  id: number;
+  name: string;
+  email: string;
+  profileImage?: string;
 }
 
 export interface Expense {
@@ -20,6 +35,7 @@ export interface Expense {
   createdAt: string;
   updatedAt: string;
   participants: ExpenseParticipant[];
+  paidBy?: ExpensePaidByUser;
 }
 
 export interface BalanceItem {
@@ -59,11 +75,15 @@ export const expensesApi = {
     return response.data;
   },
   getSettlements: async (): Promise<SettlementsResponse> => {
-    const response = await api.get<SettlementsResponse>("/expenses/settlements");
+    const response = await api.get<SettlementsResponse>(
+      "/expenses/settlements"
+    );
     return response.data;
   },
   getMySettlements: async (): Promise<SettlementsResponse> => {
-    const response = await api.get<SettlementsResponse>("/expenses/settlements/me");
+    const response = await api.get<SettlementsResponse>(
+      "/expenses/settlements/me"
+    );
     return response.data;
   },
 };

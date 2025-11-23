@@ -25,8 +25,7 @@ export function ExpenseList() {
   }
 
   const getMemberName = (id: number) => {
-    const member = household?.members.find((m) => m.id === id);
-    return member ? member.name : "Unknown";
+    return household?.members.find((m) => m.id === id)?.name;
   };
 
   const formatCurrency = (amount: number) => {
@@ -55,7 +54,12 @@ export function ExpenseList() {
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-lg">{expense.description}</p>
                   <div className="flex flex-wrap items-center gap-2 mt-1 text-sm text-muted-foreground">
-                    <span>Paid by {getMemberName(expense.paidById)}</span>
+                    <span>
+                      Paid by{" "}
+                      {getMemberName(expense.paidById) ||
+                        expense.paidBy?.name ||
+                        expense.paidBy?.email}
+                    </span>
                     {expense.date && (
                       <>
                         <span>•</span>
@@ -98,7 +102,9 @@ export function ExpenseList() {
                       key={participant.id}
                       className="flex items-center gap-2 rounded-md bg-muted px-2 py-1">
                       <span className="text-xs font-medium">
-                        {getMemberName(participant.userId)}
+                        {getMemberName(participant.userId) ||
+                          participant.user?.name ||
+                          participant.user?.email}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {formatCurrency(participant.shareAmount)}
