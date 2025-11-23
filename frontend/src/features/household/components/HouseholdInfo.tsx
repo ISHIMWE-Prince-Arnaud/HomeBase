@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Copy, LogOut, Users } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,13 +17,11 @@ import {
 
 export function HouseholdInfo() {
   const { household, leaveHousehold, isLeaving } = useHousehold();
-  const { toast } = useToast();
 
   if (!household) return null;
 
   const copyInviteCode = () => {
     navigator.clipboard.writeText(household.inviteCode);
-    toast({ title: "Copied", description: "Invite code copied to clipboard." });
   };
 
   return (

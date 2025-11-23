@@ -4,7 +4,6 @@ import type {
   MarkPurchasedInput,
   UpdateNeedInput,
 } from "@/features/needs/schema";
-import { toast } from "@/lib/toast";
 
 export const useNeeds = () => {
   const queryClient = useQueryClient();
@@ -22,10 +21,6 @@ export const useNeeds = () => {
     mutationFn: needsApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["needs"] });
-      toast.success("Item added", "Added to shopping list.");
-    },
-    onError: () => {
-      toast.error("Error", "Failed to add item.");
     },
   });
 
@@ -34,26 +29,15 @@ export const useNeeds = () => {
       needsApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["needs"] });
-      toast.success("Item updated");
-    },
-    onError: () => {
-      toast.error("Error", "Failed to update item.");
     },
   });
 
   const markPurchasedMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: MarkPurchasedInput }) =>
       needsApi.markPurchased(id, data),
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["needs"] });
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
-      const message = variables.data.createExpense
-        ? "Item marked as purchased and expense created successfully."
-        : "Item marked as purchased.";
-      toast.success("Success", message);
-    },
-    onError: () => {
-      toast.error("Error", "Failed to mark item as purchased.");
     },
   });
 
@@ -61,10 +45,6 @@ export const useNeeds = () => {
     mutationFn: needsApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["needs"] });
-      toast.success("Item removed", "The item has been removed from your shopping list.");
-    },
-    onError: () => {
-      toast.error("Error", "Failed to remove item.");
     },
   });
 

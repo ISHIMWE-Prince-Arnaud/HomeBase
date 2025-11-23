@@ -3,7 +3,6 @@ import { io, Socket } from "socket.io-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { EventQueryKeys, RealtimeEvents } from "./events";
-import { useToast } from "@/hooks/use-toast";
 import { RealtimeContext } from "./context";
 
 export function RealtimeProvider({ children }: { children: React.ReactNode }) {
@@ -11,8 +10,6 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-
   useEffect(() => {
     if (!user) {
       return;
@@ -57,15 +54,6 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
           });
         }
 
-        // Show toast for specific events (optional)
-        if (event === RealtimeEvents.NOTIFICATION_CREATED) {
-          const message = (
-            data as { notification?: { message?: string } } | undefined
-          )?.notification?.message;
-          if (message) {
-            toast({ title: "New Notification", description: message });
-          }
-        }
       });
     });
 
@@ -74,7 +62,7 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
       setSocket(null);
       setIsConnected(false);
     };
-  }, [user?.id, queryClient, toast, user]);
+  }, [user?.id, queryClient, user]);
 
   return (
     <RealtimeContext.Provider value={{ socket, isConnected }}>

@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { householdApi } from "@/features/household/api";
-import { toast } from "@/lib/toast";
 import { useNavigate } from "react-router-dom";
 
 export const useHousehold = () => {
@@ -22,10 +21,6 @@ export const useHousehold = () => {
     mutationFn: householdApi.create,
     onSuccess: (data) => {
       queryClient.setQueryData(["household", "me"], data);
-      toast.success("Household created", `Welcome to ${data.name}!`);
-    },
-    onError: () => {
-      toast.error("Error", "Failed to create household.");
     },
   });
 
@@ -33,13 +28,6 @@ export const useHousehold = () => {
     mutationFn: householdApi.join,
     onSuccess: (data) => {
       queryClient.setQueryData(["household", "me"], data);
-      toast.success(
-        "Joined household",
-        `You are now a member of ${data.name}.`
-      );
-    },
-    onError: () => {
-      toast.error("Error", "Failed to join household. Check the invite code.");
     },
   });
 
@@ -51,11 +39,7 @@ export const useHousehold = () => {
       queryClient.invalidateQueries({ queryKey: ["needs"] });
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
       queryClient.invalidateQueries({ queryKey: ["payments"] });
-      toast.success("Left household", "You have left the household.");
       navigate("/dashboard");
-    },
-    onError: () => {
-      toast.error("Error", "Failed to leave household.");
     },
   });
 

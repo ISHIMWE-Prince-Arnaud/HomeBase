@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/features/auth/api";
 import { useNavigate } from "react-router-dom";
-import { toast } from "@/lib/toast";
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
@@ -18,11 +17,7 @@ export const useAuth = () => {
     mutationFn: authApi.login,
     onSuccess: (data) => {
       queryClient.setQueryData(["me"], data.user);
-      toast.success("Welcome back!", `Logged in as ${data.user.name}`);
       navigate("/dashboard");
-    },
-    onError: () => {
-      toast.error("Login failed", "Please check your credentials.");
     },
   });
 
@@ -30,11 +25,7 @@ export const useAuth = () => {
     mutationFn: authApi.register,
     onSuccess: (data) => {
       queryClient.setQueryData(["me"], data.user);
-      toast.success("Welcome!", "Account created successfully.");
       navigate("/dashboard");
-    },
-    onError: () => {
-      toast.error("Registration failed", "Please try again.");
     },
   });
 
@@ -44,10 +35,6 @@ export const useAuth = () => {
       queryClient.setQueryData(["me"], null);
       queryClient.clear(); // Clear all cache
       navigate("/login");
-      toast.success("Logged out", "See you soon!");
-    },
-    onError: () => {
-      toast.error("Error", "Failed to logout.");
     },
   });
 
@@ -55,13 +42,6 @@ export const useAuth = () => {
     mutationFn: authApi.updateProfile,
     onSuccess: (data) => {
       queryClient.setQueryData(["me"], data);
-      toast.success(
-        "Profile updated",
-        "Your profile has been successfully updated."
-      );
-    },
-    onError: () => {
-      toast.error("Error", "Failed to update profile. Check your password.");
     },
   });
 

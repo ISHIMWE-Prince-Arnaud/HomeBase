@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { expensesApi } from "@/features/expenses/api";
-import { toast } from "@/lib/toast";
 
 export const useExpenses = () => {
   const queryClient = useQueryClient();
@@ -15,15 +14,17 @@ export const useExpenses = () => {
     queryFn: expensesApi.getBalance,
   });
 
-  const { data: settlementsResponse, isLoading: isLoadingSettlements } = useQuery({
-    queryKey: ["expenses", "settlements"],
-    queryFn: expensesApi.getSettlements,
-  });
+  const { data: settlementsResponse, isLoading: isLoadingSettlements } =
+    useQuery({
+      queryKey: ["expenses", "settlements"],
+      queryFn: expensesApi.getSettlements,
+    });
 
-  const { data: mySettlementsResponse, isLoading: isLoadingMySettlements } = useQuery({
-    queryKey: ["expenses", "settlements", "me"],
-    queryFn: expensesApi.getMySettlements,
-  });
+  const { data: mySettlementsResponse, isLoading: isLoadingMySettlements } =
+    useQuery({
+      queryKey: ["expenses", "settlements", "me"],
+      queryFn: expensesApi.getMySettlements,
+    });
 
   // Extract settlements arrays from responses
   const settlements = settlementsResponse?.settlements || [];
@@ -37,11 +38,9 @@ export const useExpenses = () => {
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
       queryClient.invalidateQueries({ queryKey: ["expenses", "balance"] });
       queryClient.invalidateQueries({ queryKey: ["expenses", "settlements"] });
-      queryClient.invalidateQueries({ queryKey: ["expenses", "settlements", "me"] });
-      toast.success("Expense added", "The expense has been recorded.");
-    },
-    onError: () => {
-      toast.error("Error", "Failed to add expense.");
+      queryClient.invalidateQueries({
+        queryKey: ["expenses", "settlements", "me"],
+      });
     },
   });
 

@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notificationsApi } from "@/features/notifications/api";
-import { toast } from "@/lib/toast";
 
 export const useNotifications = () => {
   const queryClient = useQueryClient();
@@ -25,7 +24,6 @@ export const useNotifications = () => {
     mutationFn: notificationsApi.markAllRead,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      toast.success("All caught up", "All notifications marked as read.");
     },
   });
 
