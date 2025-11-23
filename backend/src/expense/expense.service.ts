@@ -146,6 +146,12 @@ export class ExpenseService {
         })
       : ([] as Array<{ userId: number; _sum: { shareAmount: number | null } }>);
 
+    // Get all payments for this household
+    const payments = await this.prisma.payment.findMany({
+      where: { householdId },
+      select: { fromUserId: true, toUserId: true, amount: true },
+    });
+
     const map = new Map<number, { paid: number; owes: number }>();
     for (const p of paid) {
       const cur = map.get(p.paidById) || { paid: 0, owes: 0 };
@@ -156,6 +162,20 @@ export class ExpenseService {
       const cur = map.get(o.userId) || { paid: 0, owes: 0 };
       cur.owes += o._sum.shareAmount || 0;
       map.set(o.userId, cur);
+    }
+
+    // Apply payments: subtract from payer's net, add to receiver's net
+    // This effectively reduces what the payer owes and reduces what the receiver is owed
+    for (const payment of payments) {
+      // Payer: subtract payment amount (reduces their debt, increases their net)
+      const payerCur = map.get(payment.fromUserId) || { paid: 0, owes: 0 };
+      payerCur.owes -= payment.amount; // Reduce what they owe
+      map.set(payment.fromUserId, payerCur);
+
+      // Receiver: subtract payment amount (reduces what they're owed, decreases their net)
+      const receiverCur = map.get(payment.toUserId) || { paid: 0, owes: 0 };
+      receiverCur.paid -= payment.amount; // Reduce what they're owed
+      map.set(payment.toUserId, receiverCur);
     }
 
     const userIds = Array.from(map.keys());

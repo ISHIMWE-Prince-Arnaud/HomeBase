@@ -16,13 +16,22 @@ export const usePayments = () => {
 
   const createPaymentMutation = useMutation({
     mutationFn: paymentsApi.create,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["payments"] });
-      // Invalidate all expense-related queries since payments affect balances
-      queryClient.invalidateQueries({ queryKey: ["expenses"] });
-      queryClient.invalidateQueries({ queryKey: ["expenses", "balance"] });
-      queryClient.invalidateQueries({ queryKey: ["expenses", "settlements"] });
-      queryClient.invalidateQueries({ queryKey: ["expenses", "settlements", "me"] });
+    onSuccess: async () => {
+      // Invalidate and refetch all related queries
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["payments"] }),
+        queryClient.invalidateQueries({ queryKey: ["expenses"] }),
+        queryClient.invalidateQueries({ queryKey: ["expenses", "balance"] }),
+        queryClient.invalidateQueries({ queryKey: ["expenses", "settlements"] }),
+        queryClient.invalidateQueries({ queryKey: ["expenses", "settlements", "me"] }),
+      ]);
+      
+      // Force refetch to ensure fresh data
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["expenses", "balance"] }),
+        queryClient.refetchQueries({ queryKey: ["expenses", "settlements"] }),
+        queryClient.refetchQueries({ queryKey: ["expenses", "settlements", "me"] }),
+      ]);
 
       toast.success(
         "Payment recorded",
