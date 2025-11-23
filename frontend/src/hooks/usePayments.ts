@@ -18,17 +18,50 @@ export const usePayments = () => {
     mutationFn: paymentsApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] });
-      // Also invalidate expenses balance since payments affect it
+      // Invalidate all expense-related queries since payments affect balances
+      queryClient.invalidateQueries({ queryKey: ["expenses"] });
       queryClient.invalidateQueries({ queryKey: ["expenses", "balance"] });
       queryClient.invalidateQueries({ queryKey: ["expenses", "settlements"] });
+      queryClient.invalidateQueries({ queryKey: ["expenses", "settlements", "me"] });
 
       toast.success(
         "Payment recorded",
-        "The payment has been successfully recorded."
+        "The payment has been successfully recorded and balances updated."
       );
     },
-    onError: () => {
-      toast.error("Error", "Failed to record payment.");
+    onError: (error: unknown) => {
+      // Handle specific backend error messages
+      let errorMessage = "Failed to record payment.";
+      
+      if (
+        error &&
+        typeof error === "object" &&
+        "response" in error &&
+        error.response &&
+        typeof error.response === "object" &&
+        "data" in error.response &&
+        error.response.data &&
+        typeof error.response.data === "object" &&
+        "message" in error.response.data &&
+        typeof error.response.data.message === "string"
+      ) {
+        errorMessage = error.response.data.message;
+      }
+      
+      // Provide user-friendly error messages
+      if (errorMessage.includes("No direct debt")) {
+        toast.error(
+          "Cannot Record Payment",
+          "You don't owe this person any money. Check your settlements to see who you owe."
+        );
+      } else if (errorMessage.includes("exceeds the direct debt")) {
+        toast.error(
+          "Amount Too High",
+          "The payment amount exceeds what you owe. Please check your balance and try a smaller amount."
+        );
+      } else {
+        toast.error("Error", errorMessage);
+      }
     },
   });
 
