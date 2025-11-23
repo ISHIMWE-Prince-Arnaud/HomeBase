@@ -6,6 +6,7 @@ import type { Need } from "../api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { NeedListSkeleton } from "@/components/ui/skeletons";
 
 export function NeedList() {
   const { needs, isLoading, error } = useNeeds();
@@ -20,11 +21,7 @@ export function NeedList() {
   };
 
   if (isLoading) {
-    return (
-      <div className="py-10 text-center text-muted-foreground">
-        Loading shopping list...
-      </div>
-    );
+    return <NeedListSkeleton />;
   }
 
   if (error) {

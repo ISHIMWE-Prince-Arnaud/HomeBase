@@ -2,16 +2,14 @@ import { useChores } from "@/hooks/useChores";
 import { ChoreItem } from "./ChoreItem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Chore } from "../api";
+import { ChoreListSkeleton } from "@/components/ui/skeletons";
+import { CheckSquare } from "lucide-react";
 
 export function ChoreList() {
   const { chores, isLoading, error } = useChores();
 
   if (isLoading) {
-    return (
-      <div className="py-10 text-center text-muted-foreground">
-        Loading chores...
-      </div>
-    );
+    return <ChoreListSkeleton />;
   }
 
   if (error) {
@@ -24,9 +22,10 @@ export function ChoreList() {
 
   if (!chores?.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
-        <p>No chores found.</p>
-        <p className="text-sm">Create one to get started!</p>
+      <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
+        <CheckSquare className="h-16 w-16 mb-4 opacity-20" />
+        <p className="text-lg font-medium">No chores found</p>
+        <p className="text-sm mt-1">Create one to get started!</p>
       </div>
     );
   }

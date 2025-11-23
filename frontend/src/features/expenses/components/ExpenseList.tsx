@@ -2,17 +2,14 @@ import { useExpenses } from "@/hooks/useExpenses";
 import { useHousehold } from "@/hooks/useHousehold";
 import { Card } from "@/components/ui/card";
 import { Receipt } from "lucide-react";
+import { ExpenseListSkeleton } from "@/components/ui/skeletons";
 
 export function ExpenseList() {
   const { expenses, isLoading } = useExpenses();
   const { household } = useHousehold();
 
   if (isLoading) {
-    return (
-      <div className="py-10 text-center text-muted-foreground">
-        Loading expenses...
-      </div>
-    );
+    return <ExpenseListSkeleton />;
   }
 
   if (!expenses?.length) {

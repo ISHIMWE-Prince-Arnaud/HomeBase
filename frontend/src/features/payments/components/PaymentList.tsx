@@ -3,23 +3,24 @@ import { useHousehold } from "@/hooks/useHousehold";
 import { getDisplayName, getMemberById } from "@/lib/display";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Banknote } from "lucide-react";
+import { PaymentListSkeleton } from "@/components/ui/skeletons";
 
 export function PaymentList() {
   const { payments, isLoading } = usePayments();
   const { household } = useHousehold();
 
   if (isLoading) {
-    return (
-      <div className="py-10 text-center text-muted-foreground">
-        Loading payments...
-      </div>
-    );
+    return <PaymentListSkeleton />;
   }
 
   if (!payments?.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
-        <p>No payments recorded.</p>
+      <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
+        <Banknote className="h-16 w-16 mb-4 opacity-20" />
+        <p className="text-lg font-medium">No payments recorded</p>
+        <p className="text-sm mt-1">
+          Record payments to settle debts between members.
+        </p>
       </div>
     );
   }
