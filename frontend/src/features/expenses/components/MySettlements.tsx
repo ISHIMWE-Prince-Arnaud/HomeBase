@@ -42,7 +42,9 @@ export function MySettlements() {
   const iOwe = mySettlements?.filter((s) => s.fromUserId === user?.id) || [];
   const owedToMe = mySettlements?.filter((s) => s.toUserId === user?.id) || [];
 
-  if (!mySettlements || mySettlements.length === 0) {
+  // Only show "all settled" if we have data and it's actually empty
+  // Don't show it while loading or if data hasn't loaded yet
+  if (!isLoading && mySettlements && mySettlements.length === 0) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-10 text-center">

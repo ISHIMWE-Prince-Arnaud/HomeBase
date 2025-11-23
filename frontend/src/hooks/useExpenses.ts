@@ -37,6 +37,7 @@ export const useExpenses = () => {
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
       queryClient.invalidateQueries({ queryKey: ["expenses", "balance"] });
       queryClient.invalidateQueries({ queryKey: ["expenses", "settlements"] });
+      queryClient.invalidateQueries({ queryKey: ["expenses", "settlements", "me"] });
       toast.success("Expense added", "The expense has been recorded.");
     },
     onError: () => {

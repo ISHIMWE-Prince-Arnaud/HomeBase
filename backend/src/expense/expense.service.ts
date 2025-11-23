@@ -229,6 +229,12 @@ export class ExpenseService {
         })
       : ([] as Array<{ userId: number; _sum: { shareAmount: number | null } }>);
 
+    // Get all payments for this household
+    const payments = await this.prisma.payment.findMany({
+      where: { householdId },
+      select: { fromUserId: true, toUserId: true, amount: true },
+    });
+
     // Build net per user in integer units
     const SCALE = 1; // amount subunit (e.g., cents). Adjust as needed for currency.
     const netMap = new Map<number, number>(); // userId -> net (int units)
@@ -241,6 +247,21 @@ export class ExpenseService {
       const prev = netMap.get(o.userId) || 0;
       const amt = Math.round((o._sum.shareAmount || 0) * SCALE);
       netMap.set(o.userId, prev - amt);
+    }
+
+    // Apply payments to net calculation
+    // Net = paid - owes
+    // When User A pays User B:
+    //   - User A's "owes" decreases → net increases (add payment amount)
+    //   - User B's "paid" decreases → net decreases (subtract payment amount)
+    for (const payment of payments) {
+      // Payer: reduce their "owes" → increase net
+      const payerPrev = netMap.get(payment.fromUserId) || 0;
+      netMap.set(payment.fromUserId, payerPrev + Math.round(payment.amount * SCALE));
+
+      // Receiver: reduce their "paid" → decrease net
+      const receiverPrev = netMap.get(payment.toUserId) || 0;
+      netMap.set(payment.toUserId, receiverPrev - Math.round(payment.amount * SCALE));
     }
 
     // Split into creditors and debtors
@@ -301,30 +322,13 @@ export class ExpenseService {
       if (c.amount === 0) j++;
     }
 
-    // Subtract any payments already made between the specific pairs
-    const payments = await this.prisma.payment.findMany({
-      where: { householdId },
-      select: { fromUserId: true, toUserId: true, amount: true },
-    });
-    const paidMap = new Map<string, number>();
-    for (const p of payments) {
-      const key = `${p.fromUserId}->${p.toUserId}`;
-      paidMap.set(key, (paidMap.get(key) || 0) + p.amount);
-    }
-
-    const adjusted = settlements
-      .map((s) => {
-        const already = paidMap.get(`${s.fromUserId}->${s.toUserId}`) || 0;
-        const remaining = s.amount - already;
-        return remaining > 0 ? { ...s, amount: remaining } : null;
-      })
-      .filter((x): x is (typeof settlements)[number] => x !== null);
-
+    // Payments are already accounted for in the net calculation above,
+    // so settlements already reflect the correct remaining amounts
     return {
       scale: SCALE,
       currencyUnitNote:
         'Amounts are integers in scaled units (e.g., cents). Divide by scale to get display units.',
-      settlements: adjusted,
+      settlements,
     };
   }
 

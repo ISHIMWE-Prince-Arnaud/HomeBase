@@ -56,13 +56,19 @@ export class PaymentService {
     }
 
     // Apply existing payments already recorded
+    // Payments reduce what the payer owes (increase their net) and reduce what the receiver is owed (decrease their net)
     const payments = await this.prisma.payment.findMany({
       where: { householdId },
       select: { fromUserId: true, toUserId: true, amount: true },
     });
     for (const p of payments) {
-      netMap.set(p.fromUserId, (netMap.get(p.fromUserId) || 0) - p.amount);
-      netMap.set(p.toUserId, (netMap.get(p.toUserId) || 0) + p.amount);
+      // Payer: reduce their "owes" (increase net)
+      const payerPrev = netMap.get(p.fromUserId) || 0;
+      netMap.set(p.fromUserId, payerPrev + p.amount);
+      
+      // Receiver: reduce their "paid" (decrease net)
+      const receiverPrev = netMap.get(p.toUserId) || 0;
+      netMap.set(p.toUserId, receiverPrev - p.amount);
     }
 
     type Node = { userId: number; amount: number };
