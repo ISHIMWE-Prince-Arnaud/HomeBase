@@ -83,4 +83,4 @@ App default: http://localhost:5173
 
 ## License
 
-UNLICENSED (private/internal).
+MIT License
