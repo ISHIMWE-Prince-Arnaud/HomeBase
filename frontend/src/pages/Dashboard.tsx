@@ -178,12 +178,12 @@ export default function DashboardPage() {
         </StaggerItem>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
         {/* Quick Actions */}
         <SlideIn
           direction="left"
           delay={0.2}
-          className="col-span-4 border-none shadow-none bg-transparent">
+          className="border-none shadow-none bg-transparent">
           <Card className="border-none shadow-none bg-transparent">
             <div className="mb-4">
               <h3 className="text-lg font-semibold tracking-tight">
@@ -266,7 +266,7 @@ export default function DashboardPage() {
         <SlideIn
           direction="right"
           delay={0.3}
-          className="col-span-3 flex flex-col h-full w-full">
+          className="flex flex-col h-full w-full">
           <Card className="flex flex-col h-full">
             <CardHeader>
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
