@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 export function MySettlements() {
-  const { mySettlements, isLoading } = useExpenses();
+  const { mySettlements, mySettlementsScale, isLoading } = useExpenses();
   const { household } = useHousehold();
   const { user } = useAuth();
 
@@ -33,9 +33,9 @@ export function MySettlements() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-RW", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: household?.currency || "RWF",
+      currency: household?.currency || "USD",
     }).format(amount);
   };
 
@@ -67,26 +67,30 @@ export function MySettlements() {
           {iOwe.length === 0 ? (
             <p className="text-muted-foreground">You don't owe anyone.</p>
           ) : (
-            iOwe.map((settlement, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between rounded-lg border p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600">
-                    <ArrowRight className="h-5 w-5" />
+            iOwe.map((settlement, index) => {
+              const displayAmount = settlement.amount / mySettlementsScale;
+              return (
+                <div
+                  key={index}
+                  className="flex items-center justify-between rounded-lg border p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600">
+                      <ArrowRight className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-medium">
+                        Pay{" "}
+                        {settlement.toName || getMemberName(settlement.toUserId)}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Settlement</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">
-                      Pay {getMemberName(settlement.toUserId)}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Settlement</p>
-                  </div>
+                  <p className="font-bold text-red-600">
+                    {formatCurrency(displayAmount)}
+                  </p>
                 </div>
-                <p className="font-bold text-red-600">
-                  {formatCurrency(settlement.amount)}
-                </p>
-              </div>
-            ))
+              );
+            })
           )}
         </CardContent>
       </Card>
@@ -100,26 +104,31 @@ export function MySettlements() {
           {owedToMe.length === 0 ? (
             <p className="text-muted-foreground">No one owes you.</p>
           ) : (
-            owedToMe.map((settlement, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between rounded-lg border p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600">
-                    <ArrowRight className="h-5 w-5 rotate-180" />
+            owedToMe.map((settlement, index) => {
+              const displayAmount = settlement.amount / mySettlementsScale;
+              return (
+                <div
+                  key={index}
+                  className="flex items-center justify-between rounded-lg border p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600">
+                      <ArrowRight className="h-5 w-5 rotate-180" />
+                    </div>
+                    <div>
+                      <p className="font-medium">
+                        {settlement.fromName ||
+                          getMemberName(settlement.fromUserId)}{" "}
+                        pays you
+                      </p>
+                      <p className="text-sm text-muted-foreground">Settlement</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">
-                      {getMemberName(settlement.fromUserId)} pays you
-                    </p>
-                    <p className="text-sm text-muted-foreground">Settlement</p>
-                  </div>
+                  <p className="font-bold text-green-600">
+                    {formatCurrency(displayAmount)}
+                  </p>
                 </div>
-                <p className="font-bold text-green-600">
-                  {formatCurrency(settlement.amount)}
-                </p>
-              </div>
-            ))
+              );
+            })
           )}
         </CardContent>
       </Card>

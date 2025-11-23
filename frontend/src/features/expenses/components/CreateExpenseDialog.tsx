@@ -71,18 +71,26 @@ export function CreateExpenseDialog() {
   }, [household, form]);
 
   const onSubmit = (data: CreateExpenseInput) => {
-    createExpense(data, {
-      onSuccess: () => {
-        setOpen(false);
-        form.reset({
-          description: "",
-          totalAmount: 0,
-          date: new Date().toISOString().split("T")[0],
-          paidById: user?.id || 0,
-          participants: household?.members.map((m) => m.id) || [],
-        });
-      },
-    });
+    // Ensure paidById is included in participants (backend requirement)
+    const participants = Array.isArray(data.participants)
+      ? [...new Set([...data.participants, data.paidById])] // Remove duplicates
+      : [data.paidById];
+
+    createExpense(
+      { ...data, participants },
+      {
+        onSuccess: () => {
+          setOpen(false);
+          form.reset({
+            description: "",
+            totalAmount: 0,
+            date: new Date().toISOString().split("T")[0],
+            paidById: user?.id || 0,
+            participants: household?.members.map((m) => m.id) || [],
+          });
+        },
+      }
+    );
   };
 
   return (
@@ -174,7 +182,18 @@ export function CreateExpenseDialog() {
                 <FormItem>
                   <FormLabel>Paid By</FormLabel>
                   <Select
-                    onValueChange={(val) => field.onChange(Number(val))}
+                    onValueChange={(val) => {
+                      const newPaidById = Number(val);
+                      field.onChange(newPaidById);
+                      // Automatically add payer to participants if not already included
+                      const currentParticipants = form.getValues("participants") || [];
+                      if (!currentParticipants.includes(newPaidById)) {
+                        form.setValue("participants", [
+                          ...currentParticipants,
+                          newPaidById,
+                        ]);
+                      }
+                    }}
                     value={
                       field.value === undefined || field.value === null
                         ? ""

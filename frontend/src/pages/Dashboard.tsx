@@ -44,8 +44,9 @@ export default function DashboardPage() {
   const unreadNotifications =
     notifications?.filter((n) => !n.isRead).length || 0;
 
-  // Calculate balance
-  const myBalance = balance?.[user.id] || 0;
+  // Calculate balance - find user's balance from array
+  const myBalanceItem = balance?.find((b) => b.userId === user.id);
+  const myBalance = myBalanceItem?.net || 0;
   const balanceColor =
     myBalance > 0
       ? "text-green-600"
@@ -111,10 +112,10 @@ export default function DashboardPage() {
               <Skeleton className="h-8 w-24" />
             ) : (
               <div className={`text-2xl font-bold ${balanceColor}`}>
-                {new Intl.NumberFormat("en-RW", {
+                {new Intl.NumberFormat("en-US", {
                   style: "currency",
-                  currency: household.currency,
-                }).format(myBalance)}
+                  currency: household.currency || "USD",
+                }).format(Math.abs(myBalance))}
               </div>
             )}
             <p className="text-xs text-muted-foreground">
