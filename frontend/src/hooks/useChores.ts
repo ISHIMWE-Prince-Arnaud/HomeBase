@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { choresApi } from "@/features/chores/api";
 import type { UpdateChoreInput } from "@/features/chores/schema";
+import { showToast } from "@/lib/toast";
 
 export const useChores = () => {
   const queryClient = useQueryClient();
@@ -18,6 +19,10 @@ export const useChores = () => {
     mutationFn: choresApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chores"] });
+      showToast.success("Chore created ✓", "Added to your list.");
+    },
+    onError: () => {
+      showToast.error("Failed to create chore", "Please try again.");
     },
   });
 
@@ -26,6 +31,10 @@ export const useChores = () => {
       choresApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chores"] });
+      showToast.success("Chore updated ✓");
+    },
+    onError: () => {
+      showToast.error("Failed to update chore", "Please try again.");
     },
   });
 
@@ -33,6 +42,10 @@ export const useChores = () => {
     mutationFn: choresApi.complete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chores"] });
+      showToast.success("Chore completed! 🎉", "Great job!");
+    },
+    onError: () => {
+      showToast.error("Failed to complete chore", "Please try again.");
     },
   });
 
@@ -40,6 +53,10 @@ export const useChores = () => {
     mutationFn: choresApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chores"] });
+      showToast.success("Chore deleted", "Removed from your list.");
+    },
+    onError: () => {
+      showToast.error("Failed to delete chore", "Please try again.");
     },
   });
 

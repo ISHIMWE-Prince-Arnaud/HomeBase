@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { expensesApi } from "@/features/expenses/api";
+import { showToast } from "@/lib/toast";
 
 export const useExpenses = () => {
   const queryClient = useQueryClient();
@@ -41,6 +42,10 @@ export const useExpenses = () => {
       queryClient.invalidateQueries({
         queryKey: ["expenses", "settlements", "me"],
       });
+      showToast.success("Expense recorded 💰", "Added to your expenses.");
+    },
+    onError: () => {
+      showToast.error("Failed to record expense", "Please try again.");
     },
   });
 
