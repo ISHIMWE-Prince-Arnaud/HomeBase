@@ -1,6 +1,12 @@
 import { useHousehold } from "@/hooks/useHousehold";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Copy, LogOut, Users } from "lucide-react";
 import {
@@ -29,13 +35,18 @@ export function HouseholdInfo() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>{household.name}</span>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl">{household.name}</CardTitle>
+              <CardDescription>
+                Manage your household settings and members.
+              </CardDescription>
+            </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm">
-                  <LogOut className="mr-2 h-4 w-4" />
+                <Button variant="destructive" size="sm" className="h-8">
+                  <LogOut className="mr-2 h-3.5 w-3.5" />
                   Leave
                 </Button>
               </AlertDialogTrigger>
@@ -57,43 +68,57 @@ export function HouseholdInfo() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          </CardTitle>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-4">
             <div className="space-y-1">
               <p className="text-sm font-medium leading-none">Invite Code</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Share this code to invite others.
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+              <code className="relative rounded bg-background border px-[0.5rem] py-[0.3rem] font-mono text-sm font-semibold tracking-widest">
                 {household.inviteCode}
               </code>
-              <Button variant="ghost" size="icon" onClick={copyInviteCode}>
-                <Copy className="h-4 w-4" />
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={copyInviteCode}>
+                <Copy className="h-3.5 w-3.5" />
+                <span className="sr-only">Copy</span>
               </Button>
             </div>
           </div>
 
           <div>
-            <h3 className="mb-4 flex items-center text-lg font-semibold">
-              <Users className="mr-2 h-5 w-5" />
-              Members
+            <h3 className="mb-4 flex items-center text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              <Users className="mr-2 h-4 w-4" />
+              Members ({household.members.length})
             </h3>
-            <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2">
               {household.members.map((member) => (
-                <div key={member.id} className="flex items-center space-x-4">
-                  <Avatar>
+                <div
+                  key={member.id}
+                  className="flex items-center space-x-3 rounded-lg border p-3 hover:bg-muted/20 transition-colors">
+                  <Avatar className="h-10 w-10 border">
                     <AvatarImage src={member.profileImage} alt={member.name} />
-                    <AvatarFallback>{member.name[0]}</AvatarFallback>
+                    <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                      {member.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2)}
+                    </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <p className="text-sm font-medium leading-none">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium leading-none truncate">
                       {member.name}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground truncate mt-1">
                       {member.email}
                     </p>
                   </div>

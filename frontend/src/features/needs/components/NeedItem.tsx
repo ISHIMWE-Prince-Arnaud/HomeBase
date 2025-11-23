@@ -45,98 +45,116 @@ export function NeedItem({ need, onMarkPurchased }: NeedItemProps) {
     <>
       <Card
         className={cn(
-          "transition-all border rounded-xl shadow-sm hover:shadow-md",
-          "flex flex-col",
-          isPurchased &&
-            "bg-green-50/40 border-green-200 opacity-80 hover:shadow-none"
+          "transition-all border rounded-xl shadow-sm hover:shadow-md group relative overflow-hidden",
+          "flex flex-col h-full",
+          isPurchased && "bg-muted/30 opacity-60"
         )}>
-        {/* Header */}
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-4">
+        {isPurchased && (
+          <div className="absolute inset-0 bg-background/50 z-10 pointer-events-none" />
+        )}
+
+        <CardHeader className="p-4 pb-2 space-y-1 z-20">
+          <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               <h3
                 className={cn(
-                  "text-lg font-semibold tracking-tight",
+                  "font-semibold leading-tight break-words",
                   isPurchased && "line-through text-muted-foreground"
                 )}>
                 {need.name}
               </h3>
-
-              {/* Category under title on mobile, badge on right for desktop */}
-              {need.category && (
-                <div className="mt-1 text-sm text-muted-foreground sm:hidden">
-                  {need.category}
-                </div>
-              )}
             </div>
-
             {need.category && (
               <Badge
-                variant="secondary"
-                className="hidden sm:inline-block px-2 py-0.5 text-xs font-medium">
+                variant="outline"
+                className="hidden sm:inline-flex px-2 py-0.5 text-[10px] font-medium shrink-0 bg-background">
                 {need.category}
               </Badge>
             )}
           </div>
         </CardHeader>
 
-        {/* Middle info section */}
-        {(need.quantity || need.category) && (
-          <CardContent className="pt-0 pb-2">
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              {need.quantity && (
-                <div className="flex items-center gap-1">
-                  <span className="font-medium">Qty:</span>
-                  <span>{need.quantity}</span>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        )}
-
-        {/* Footer / actions */}
-        <CardFooter className="flex items-center justify-between pt-2 mt-auto">
-          <Button
-            variant={isPurchased ? "secondary" : "default"}
-            size="icon"
-            className={cn(
-              "h-10 w-10 rounded-full transition-all shrink-0",
-              "hover:scale-105",
-              isPurchased &&
-                "bg-green-100 text-green-700 hover:bg-green-200 hover:scale-100"
+        <CardContent className="p-4 pt-0 flex-1 z-20">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-1">
+            {need.quantity && (
+              <Badge
+                variant="secondary"
+                className="px-1.5 py-0 h-5 font-normal">
+                Qty: {need.quantity}
+              </Badge>
             )}
-            onClick={() => onMarkPurchased(need)}
-            disabled={isPurchased}
-            title={isPurchased ? "Already purchased" : "Mark as purchased"}>
-            {isPurchased ? (
-              <Check className="h-5 w-5" />
-            ) : (
-              <ShoppingCart className="h-5 w-5" />
+            {need.category && (
+              <span className="sm:hidden inline-block bg-muted px-1.5 rounded text-[10px]">
+                {need.category}
+              </span>
             )}
-          </Button>
+          </div>
+        </CardContent>
 
-          {!isPurchased && (
-            <div className="flex items-center gap-1">
+        <CardFooter className="p-3 border-t bg-muted/10 flex items-center justify-between gap-2 z-20 mt-auto">
+          <div className="flex items-center gap-1">
+            {!isPurchased && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-primary"
+                  onClick={() => setShowEditDialog(true)}
+                  title="Edit item">
+                  <Edit2 className="h-4 w-4" />
+                  <span className="sr-only">Edit</span>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  onClick={() => setShowDeleteDialog(true)}
+                  disabled={isDeleting}
+                  title="Delete item">
+                  <Trash2 className="h-4 w-4" />
+                  <span className="sr-only">Delete</span>
+                </Button>
+              </>
+            )}
+            {isPurchased && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-primary"
-                onClick={() => setShowEditDialog(true)}
-                title="Edit item">
-                <Edit2 className="h-4 w-4" />
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive z-30 pointer-events-auto"
                 onClick={() => setShowDeleteDialog(true)}
                 disabled={isDeleting}
                 title="Delete item">
                 <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Delete</span>
               </Button>
-            </div>
-          )}
+            )}
+          </div>
+
+          <Button
+            variant={isPurchased ? "secondary" : "default"}
+            size="sm"
+            className={cn(
+              "h-8 text-xs shadow-sm z-30 pointer-events-auto",
+              isPurchased
+                ? "bg-green-100 text-green-700 hover:bg-green-200 border border-green-200 cursor-default"
+                : "bg-primary hover:bg-primary/90"
+            )}
+            onClick={() => !isPurchased && onMarkPurchased(need)}
+            disabled={isPurchased}
+            title={isPurchased ? "Purchased" : "Mark as purchased"}>
+            {isPurchased ? (
+              <>
+                <Check className="h-3.5 w-3.5 mr-1.5" />
+                Purchased
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="h-3.5 w-3.5 mr-1.5" />
+                Buy
+              </>
+            )}
+          </Button>
         </CardFooter>
       </Card>
 

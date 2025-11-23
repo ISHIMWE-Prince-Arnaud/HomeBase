@@ -239,10 +239,14 @@ export function EditChoreDialog({
                     onValueChange={(val) =>
                       field.onChange(val === "unassigned" ? null : Number(val))
                     }
-                    value={field.value?.toString() ?? "unassigned"}>
+                    value={
+                      field.value === null || field.value === undefined
+                        ? "unassigned"
+                        : String(field.value)
+                    }>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Unassigned" />
+                        <SelectValue placeholder="Select a member" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>

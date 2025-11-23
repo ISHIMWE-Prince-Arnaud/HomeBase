@@ -103,9 +103,17 @@ export function CreateNeedDialog() {
                 )}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isCreating}>
-              {isCreating ? "Adding..." : "Add Item"}
-            </Button>
+            <div className="flex gap-2 justify-end pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isCreating}>
+                {isCreating ? "Adding..." : "Add Item"}
+              </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>

@@ -82,7 +82,7 @@ export function ExpenseBalance() {
         <CardHeader>
           <CardTitle>Suggested Settlements</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           {settlements && settlements.length > 0 ? (
             settlements.map((settlement, index) => {
               // Divide by scale to get display amount
@@ -90,27 +90,27 @@ export function ExpenseBalance() {
               return (
                 <div
                   key={index}
-                  className="flex items-center justify-between rounded-lg border p-3">
-                  <div className="flex items-center gap-2">
+                  className="flex items-center justify-between rounded-lg border p-3 bg-muted/10">
+                  <div className="flex items-center gap-2 text-sm">
                     <span className="font-medium">
                       {getMemberName(settlement.fromUserId) ||
                         settlement.fromName}
                     </span>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
                     <span className="font-medium">
                       {getMemberName(settlement.toUserId) || settlement.toName}
                     </span>
                   </div>
-                  <span className="font-bold text-primary">
+                  <span className="font-bold text-primary text-sm">
                     {formatCurrency(displayAmount)}
                   </span>
                 </div>
               );
             })
           ) : (
-            <p className="text-sm text-muted-foreground">
-              No settlements needed.
-            </p>
+            <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground">
+              <p className="text-sm">All settled up!</p>
+            </div>
           )}
         </CardContent>
       </Card>

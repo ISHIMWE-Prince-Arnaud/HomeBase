@@ -38,7 +38,7 @@ export function NotificationList() {
           </Button>
         </div>
       )}
-      <div className="space-y-3">
+      <div className="space-y-2">
         {notifications.map((notification) => (
           <NotificationItem
             key={notification.id}

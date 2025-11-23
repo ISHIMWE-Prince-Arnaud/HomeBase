@@ -1,10 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ["class"],
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     container: {
       center: true,
@@ -59,9 +56,9 @@ export default {
         info: "#3B82F6",
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "1rem", // 16px
+        md: "0.75rem", // 12px
+        sm: "0.5rem", // 8px
       },
       fontFamily: {
         sans: ["Inter", "sans-serif"],
@@ -87,5 +84,4 @@ export default {
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
-
+};

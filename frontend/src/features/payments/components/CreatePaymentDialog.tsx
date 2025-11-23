@@ -68,13 +68,13 @@ export function CreatePaymentDialog() {
   // Find how much the user owes to the selected recipient
   const maxPayableAmount = useMemo(() => {
     if (!selectedToUserId || !mySettlements) return 0;
-    
+
     const settlement = mySettlements.find(
       (s) => s.fromUserId === user?.id && s.toUserId === selectedToUserId
     );
-    
+
     if (!settlement) return 0;
-    
+
     // Divide by scale to get display amount
     return settlement.amount / (mySettlementsScale || 1);
   }, [selectedToUserId, mySettlements, mySettlementsScale, user?.id]);
@@ -82,14 +82,14 @@ export function CreatePaymentDialog() {
   // Get only people the user owes money to
   const recipients = useMemo(() => {
     if (!household || !household.members || !mySettlements) return [];
-    
+
     // Get all unique user IDs that the current user owes
     const owedToUserIds = new Set(
       mySettlements
         .filter((s) => s.fromUserId === user?.id)
         .map((s) => s.toUserId)
     );
-    
+
     // Filter household members to only include those the user owes
     return household.members.filter(
       (m) => m.id !== user?.id && owedToUserIds.has(m.id)
@@ -227,7 +227,11 @@ export function CreatePaymentDialog() {
                             type="number"
                             step="0.01"
                             min="0"
-                            max={maxPayableAmount > 0 ? maxPayableAmount : undefined}
+                            max={
+                              maxPayableAmount > 0
+                                ? maxPayableAmount
+                                : undefined
+                            }
                             placeholder="0.00"
                             {...field}
                             value={
@@ -263,18 +267,25 @@ export function CreatePaymentDialog() {
                   }}
                 />
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={
-                    isCreating ||
-                    !selectedToUserId ||
-                    (selectedToUserId &&
-                      maxPayableAmount > 0 &&
-                      Number(amountValue || 0) > maxPayableAmount)
-                  }>
-                  {isCreating ? "Recording..." : "Record Payment"}
-                </Button>
+                <div className="flex gap-2 justify-end pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={
+                      isCreating ||
+                      !selectedToUserId ||
+                      (selectedToUserId &&
+                        maxPayableAmount > 0 &&
+                        Number(amountValue || 0) > maxPayableAmount)
+                    }>
+                    {isCreating ? "Recording..." : "Record Payment"}
+                  </Button>
+                </div>
               </>
             )}
           </form>

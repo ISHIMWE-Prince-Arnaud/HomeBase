@@ -186,7 +186,8 @@ export function CreateExpenseDialog() {
                       const newPaidById = Number(val);
                       field.onChange(newPaidById);
                       // Automatically add payer to participants if not already included
-                      const currentParticipants = form.getValues("participants") || [];
+                      const currentParticipants =
+                        form.getValues("participants") || [];
                       if (!currentParticipants.includes(newPaidById)) {
                         form.setValue("participants", [
                           ...currentParticipants,
@@ -273,9 +274,17 @@ export function CreateExpenseDialog() {
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={isCreating}>
-              {isCreating ? "Adding..." : "Add Expense"}
-            </Button>
+            <div className="flex gap-2 justify-end pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isCreating}>
+                {isCreating ? "Adding..." : "Add Expense"}
+              </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>

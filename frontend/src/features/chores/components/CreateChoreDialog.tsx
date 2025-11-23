@@ -216,19 +216,22 @@ export function CreateChoreDialog() {
                   <FormLabel>Assigned To</FormLabel>
                   <Select
                     onValueChange={(val) =>
-                      field.onChange(val ? Number(val) : undefined)
+                      field.onChange(
+                        val === "unassigned" ? undefined : Number(val)
+                      )
                     }
                     value={
                       field.value === undefined || field.value === null
-                        ? ""
+                        ? "unassigned"
                         : String(field.value)
                     }>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Unassigned" />
+                        <SelectValue placeholder="Select a member" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="unassigned">Unassigned</SelectItem>
                       {household?.members.map((member) => (
                         <SelectItem
                           key={member.id}

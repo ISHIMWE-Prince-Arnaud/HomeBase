@@ -72,21 +72,23 @@ export default function ProfilePage() {
               Update your public profile information.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
+          <CardContent className="space-y-8">
+            <div className="flex items-center gap-6">
+              <Avatar className="h-24 w-24 border-2 border-muted">
                 <AvatarImage src={user.profileImage} />
-                <AvatarFallback className="text-lg">
+                <AvatarFallback className="text-2xl bg-primary/10 text-primary font-semibold">
                   {user.name
                     .split(" ")
                     .map((n) => n[0])
                     .join("")
-                    .toUpperCase()}
+                    .toUpperCase()
+                    .slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <p className="font-medium">{user.email}</p>
-                <p className="text-sm text-muted-foreground">
+              <div className="space-y-1">
+                <h3 className="font-semibold text-lg">{user.name}</h3>
+                <p className="text-sm text-muted-foreground">{user.email}</p>
+                <p className="text-xs text-muted-foreground pt-1">
                   Member since {new Date().getFullYear()}
                 </p>
               </div>
@@ -97,7 +99,7 @@ export default function ProfilePage() {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4">
+                className="space-y-6">
                 <FormField
                   control={form.control}
                   name="name"
@@ -112,40 +114,47 @@ export default function ProfilePage() {
                   )}
                 />
 
-                <div className="space-y-4 pt-4">
-                  <h3 className="text-sm font-medium">Change Password</h3>
-                  <FormField
-                    control={form.control}
-                    name="currentPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Current Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          Required to set a new password.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="newPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>New Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <div className="space-y-4 rounded-lg border p-4 bg-muted/10">
+                  <h3 className="text-sm font-medium flex items-center gap-2">
+                    Change Password
+                    <span className="text-[10px] font-normal text-muted-foreground bg-background border px-1.5 py-0.5 rounded">
+                      Optional
+                    </span>
+                  </h3>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="currentPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Current Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="newPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>New Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormDescription className="text-xs">
+                    Leave blank if you don't want to change your password.
+                  </FormDescription>
                 </div>
 
-                <div className="flex justify-end pt-4">
+                <div className="flex justify-end">
                   <Button type="submit" disabled={isUpdatingProfile}>
                     <Save className="mr-2 h-4 w-4" />
                     {isUpdatingProfile ? "Saving..." : "Save Changes"}
