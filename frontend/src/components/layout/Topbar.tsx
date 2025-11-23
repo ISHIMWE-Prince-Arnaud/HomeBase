@@ -22,6 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { Link } from "react-router-dom";
 
 export function Topbar() {
   const { user, logout } = useAuth();
@@ -40,10 +41,12 @@ export function Topbar() {
 
           <ThemeToggle />
 
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500" />
-            <span className="sr-only">Notifications</span>
+          <Button variant="ghost" size="icon" className="relative" asChild>
+            <Link to="/notifications">
+              <Bell className="h-5 w-5" />
+              <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500" />
+              <span className="sr-only">Notifications</span>
+            </Link>
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
