@@ -6,7 +6,7 @@ A NestJS (v11) API for managing shared household life: authentication, household
 
 - NestJS 11 (TypeScript)
 - Prisma ORM 6 (PostgreSQL)
-- JWT auth (passport-jwt)
+- JWT auth (passport-jwt) via HttpOnly cookie (`access_token`)
 - Socket.IO for realtime events
 
 ## Project Structure
@@ -29,6 +29,11 @@ A NestJS (v11) API for managing shared household life: authentication, household
 - JWT_EXPIRES_IN – Token lifetime (e.g., 1d)
 - PORT – HTTP port (default 3000)
 
+Notes:
+
+- CORS is enabled for `http://localhost:5173` with `credentials: true` (see `src/main.ts`). If your frontend runs elsewhere, update the origin.
+- Auth is cookie-based: the server sets an HttpOnly `access_token` on login/register; clients must send credentials (`withCredentials: true`).
+
 ## Scripts
 
 - npm run start:dev – Run with hot reload
@@ -39,12 +44,20 @@ A NestJS (v11) API for managing shared household life: authentication, household
 
 ## Local Development
 
-1. Install deps: npm install
-2. Start DB via Docker: docker compose up -d db
-3. Generate Prisma Client: npx prisma generate
-4. Start API: npm run start:dev
+1. Install deps: `npm install`
+2. Start DB via Docker: `docker compose up -d db`
+3. Prisma setup:
+   - Generate client: `npx prisma generate`
+   - Apply migrations: `npx prisma migrate dev`
+4. Start API: `npm run start:dev`
 
 API runs on http://localhost:3000 by default.
+
+### Authentication
+
+- Login/Register set an HttpOnly cookie `access_token`.
+- Protected endpoints use `JwtGuard` which extracts the token from cookies (no `Authorization` header required).
+- For browser clients, configure your HTTP client with `withCredentials: true` and enable CORS with credentials (already configured in `src/main.ts`).
 
 ## Documentation
 

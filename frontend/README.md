@@ -1,73 +1,110 @@
-# React + TypeScript + Vite
+# HomeBase Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React SPA for managing shared household life. It talks to the NestJS backend and uses realtime updates.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 19 + Vite 7
+- React Router 7
+- TanStack Query 5
+- TailwindCSS
+- Zustand (UI state)
+- Axios + Socket.IO Client
 
-## React Compiler
+## Local Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Environment
 
-## Expanding the ESLint configuration
+- Create or edit `./.env`
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+VITE_API_URL=http://localhost:3000
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Install deps
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+npm install
+```
+
+3. Run dev server
+
+```
+npm run dev
+```
+
+App default: http://localhost:5173
+
+## Scripts
+
+- `npm run dev` — Start dev server
+- `npm run build` — Type-check and build
+- `npm run preview` — Preview production build
+- `npm run lint` — Lint source
+
+## Project Structure
+
+- `src/App.tsx` — Routes
+- `src/main.tsx` — Providers: QueryClient, ThemeProvider, Router, Realtime, Toaster
+- `src/api/` — Axios client
+- `src/features/` — Feature folders (auth, household, chores, needs, expenses, payments, notifications, realtime)
+- `src/hooks/` — App hooks (auth, household, etc.)
+- `src/layouts/` — Layouts (public, app)
+- `src/components/` — UI & layout components
+- `src/stores/` — Zustand store(s)
+- `src/lib/` — Utilities (display, toast, utils)
+
+## Routing
+
+- Public
+  - `/login`
+  - `/register`
+- Protected (requires auth)
+  - `/household` — Manage/create/join household (accessible to any authenticated user)
+  - `/profile`
+  - Requires existing household
+    - `/dashboard`
+    - `/chores`
+    - `/needs`
+    - `/expenses`
+    - `/payments`
+    - `/notifications`
+- Fallback: any `*` redirects to `/dashboard`
+
+Guards:
+
+- `ProtectedRoute` — Redirects unauthenticated users to `/login`
+- `HouseholdRequiredRoute` — Redirects users without a household to `/household`
+
+## Data & State
+
+- TanStack Query for server state (caching, mutations). See `src/main.tsx` default options.
+- Zustand for UI state: `src/stores/uiStore.ts` (sidebar, theme, notification panel). Theme persisted (`ui-storage`).
+
+## API Client
+
+- `src/api/client.ts` creates an Axios instance using `VITE_API_URL`.
+- `withCredentials: true` so the browser sends the HttpOnly `access_token` cookie.
+- Global response interceptor warns on 401.
+
+## Realtime
+
+- `src/features/realtime/RealtimeProvider.tsx` opens a Socket.IO connection to `VITE_API_URL`.
+- Events are mapped in `src/features/realtime/events.ts` to invalidate specific React Query keys.
+
+## Frontend Docs
+
+Docs Index:
+
+- ./docs/README.md — Overview
+- ./docs/routing.md — Routing
+- ./docs/api-client.md — API Client
+- ./docs/state.md — State & Data
+- ./docs/realtime.md — Realtime
+- ./docs/auth.md — Auth
+- ./docs/household.md — Household
+- ./docs/chores.md — Chores
+- ./docs/needs.md — Needs
+- ./docs/expenses.md — Expenses
+- ./docs/payments.md — Payments
+- ./docs/notifications.md — Notifications
