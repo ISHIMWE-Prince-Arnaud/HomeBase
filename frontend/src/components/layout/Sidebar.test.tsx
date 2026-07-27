@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
+import { ThemeProvider } from "./ThemeProvider";
 
 vi.mock("@/hooks/useAuth", () => ({
   useAuth: () => ({
@@ -21,7 +22,9 @@ describe("Sidebar", () => {
   it("renders navigation links", () => {
     render(
       <BrowserRouter>
-        <Sidebar />
+        <ThemeProvider>
+          <Sidebar />
+        </ThemeProvider>
       </BrowserRouter>
     );
 
@@ -33,7 +36,9 @@ describe("Sidebar", () => {
   it("renders household link", () => {
     render(
       <BrowserRouter>
-        <Sidebar />
+        <ThemeProvider>
+          <Sidebar />
+        </ThemeProvider>
       </BrowserRouter>
     );
 

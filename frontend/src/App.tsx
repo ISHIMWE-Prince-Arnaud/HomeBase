@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "@/pages/Login";
 import RegisterPage from "@/pages/Register";
 import PublicLayout from "@/layouts/PublicLayout";
@@ -17,6 +17,9 @@ import NotFoundPage from "@/pages/NotFound";
 function App() {
   return (
     <Routes>
+      {/* Redirect root to dashboard */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
       {/* Public Routes */}
       <Route element={<PublicLayout />}>
         <Route path="/login" element={<LoginPage />} />
