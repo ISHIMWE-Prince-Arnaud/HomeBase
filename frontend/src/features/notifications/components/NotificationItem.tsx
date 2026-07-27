@@ -40,11 +40,14 @@ interface NotificationItemProps {
   isExpanded?: boolean;
 }
 
-const getNotificationPath = (type?: string, entityType?: string, entityId?: number): string => {
+const getNotificationPath = (
+  type?: string,
+  entityType?: string,
+  entityId?: number,
+): string => {
   if (entityId && entityType) {
     switch (entityType) {
       case "chore":
-        return `/chores/${entityId}`;
         return `/chores`;
       case "expense":
         return `/expenses`;
@@ -78,7 +81,7 @@ const getNotificationPath = (type?: string, entityType?: string, entityId?: numb
 const getActionLabel = (type?: string): string | null => {
   switch (type) {
     case "chore_assigned":
-      return "View Chore";
+      return "View Chores";
     case "expense_added":
       return "View Expense";
     case "payment_received":
@@ -123,7 +126,11 @@ export function NotificationItem({
 
   const isHouseholdWide = notification.userId === null;
   const isForCurrentUser = notification.userId === currentUserId;
-  const notificationPath = getNotificationPath(notification.type, notification.entityType, notification.entityId);
+  const notificationPath = getNotificationPath(
+    notification.type,
+    notification.entityType,
+    notification.entityId,
+  );
   const actionLabel = getActionLabel(notification.type);
 
   const handleClick = () => {
@@ -172,45 +179,80 @@ export function NotificationItem({
           "group flex items-start gap-3 rounded-lg border transition-all cursor-pointer select-none touch-pan-x",
           notification.isRead
             ? "bg-background/50 border-border/30 opacity-80 p-2 sm:p-3"
-            : "bg-card border-l-4 border-l-primary border-y-border border-r-border shadow-sm p-3 sm:p-4"
+            : "bg-card border-l-4 border-l-primary border-y-border border-r-border shadow-sm p-3 sm:p-4",
         )}>
         <div
           className={cn(
             "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
             notification.isRead
               ? "bg-muted text-muted-foreground"
-              : getNotificationIconStyle(notification.type)
+              : getNotificationIconStyle(notification.type),
           )}>
-          {notification.type === "chore_assigned" && <CheckSquare className="h-4 w-4" />}
-          {notification.type === "expense_added" && <Receipt className="h-4 w-4" />}
-          {notification.type === "payment_received" && <CreditCard className="h-4 w-4" />}
-          {notification.type === "need_added" && <ShoppingBag className="h-4 w-4" />}
-          {notification.type === "need_purchased" && <ShoppingBag className="h-4 w-4" />}
-          {notification.type === "household_member_joined" && <UserPlus className="h-4 w-4" />}
-          {notification.type === "household_member_left" && <UserPlus className="h-4 w-4" />}
-          {notification.type === "household_deleted" && <Trash2 className="h-4 w-4" />}
-          {notification.type === "chore_completed" && <CheckCircle className="h-4 w-4" />}
-          {(!notification.type || !["chore_assigned", "expense_added", "payment_received", "need_added", "need_purchased", "household_member_joined", "household_member_left", "household_deleted", "chore_completed"].includes(notification.type)) && <Info className="h-4 w-4" />}
+          {notification.type === "chore_assigned" && (
+            <CheckSquare className="h-4 w-4" />
+          )}
+          {notification.type === "expense_added" && (
+            <Receipt className="h-4 w-4" />
+          )}
+          {notification.type === "payment_received" && (
+            <CreditCard className="h-4 w-4" />
+          )}
+          {notification.type === "need_added" && (
+            <ShoppingBag className="h-4 w-4" />
+          )}
+          {notification.type === "need_purchased" && (
+            <ShoppingBag className="h-4 w-4" />
+          )}
+          {notification.type === "household_member_joined" && (
+            <UserPlus className="h-4 w-4" />
+          )}
+          {notification.type === "household_member_left" && (
+            <UserPlus className="h-4 w-4" />
+          )}
+          {notification.type === "household_deleted" && (
+            <Trash2 className="h-4 w-4" />
+          )}
+          {notification.type === "chore_completed" && (
+            <CheckCircle className="h-4 w-4" />
+          )}
+          {(!notification.type ||
+            ![
+              "chore_assigned",
+              "expense_added",
+              "payment_received",
+              "need_added",
+              "need_purchased",
+              "household_member_joined",
+              "household_member_left",
+              "household_deleted",
+              "chore_completed",
+            ].includes(notification.type)) && <Info className="h-4 w-4" />}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
             <p
               className={cn(
                 "text-sm font-medium leading-tight",
-                !notification.isRead && "font-semibold"
+                !notification.isRead && "font-semibold",
               )}>
-              {notification.actor?.name ? `${notification.actor.name} ${notification.message}` : notification.message}
+              {notification.actor?.name
+                ? `${notification.actor.name} ${notification.message}`
+                : notification.message}
             </p>
             <div className="flex items-center gap-1 mt-0.5 sm:mt-0">
               {isHouseholdWide && (
-                <Badge variant="secondary" className="text-[10px] sm:text-xs h-5 px-1.5">
+                <Badge
+                  variant="secondary"
+                  className="text-[10px] sm:text-xs h-5 px-1.5">
                   <Users className="h-3 w-3 mr-0.5" />
                   <span className="hidden sm:inline">Everyone</span>
                   <span className="sm:hidden">All</span>
                 </Badge>
               )}
               {!isHouseholdWide && isForCurrentUser && (
-                <Badge variant="outline" className="text-[10px] sm:text-xs h-5 px-1.5">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] sm:text-xs h-5 px-1.5">
                   <User className="h-3 w-3 mr-0.5" />
                   <span className="hidden sm:inline">For you</span>
                   <span className="sm:hidden">You</span>
@@ -218,7 +260,9 @@ export function NotificationItem({
               )}
             </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-1" title={formatFullDate(notification.createdAt)}>
+          <p
+            className="text-xs text-muted-foreground mt-1"
+            title={formatFullDate(notification.createdAt)}>
             {formatRelativeTime(notification.createdAt)}
           </p>
         </div>
@@ -270,7 +314,8 @@ export function NotificationItem({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete notification?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this notification? This action cannot be undone.
+              Are you sure you want to delete this notification? This action
+              cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
