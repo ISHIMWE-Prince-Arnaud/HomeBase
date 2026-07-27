@@ -3,8 +3,8 @@ services:
     name: homebase-api
     runtime: node
     plan: free
-    env: node
-    buildCommand: cd backend && npm install --include=dev && npx nest build && npx prisma migrate deploy
+    buildCommand: cd backend && npm install --include=dev && npx prisma generate && npx nest build
+    preDeployCommand: cd backend && npx prisma migrate deploy
     startCommand: cd backend && npm run start:prod
     healthCheckPath: /health
     envVars:
